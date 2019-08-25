@@ -19,4 +19,4 @@ jobs:
 
 cache:
   directories:
-    - /home/travis/gopath
+    - /home/travis/gopath/mod
