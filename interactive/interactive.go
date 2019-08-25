@@ -53,19 +53,21 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	// 先頭8文字(payload=)以外を使う
 	jsonStr, err := url.QueryUnescape(request.Body[8:])
 	if err != nil {
-		return util.Response(err.Error()), nil
+		log.Fatal(err)
+		return util.Response("エラーが発生した!!"), nil
 	}
 
 	var body payload
 	if err := json.Unmarshal([]byte(jsonStr), &body); err != nil {
-		return util.Response(err.Error()), nil
+		log.Fatal(err)
+		return util.Response("エラーが発生した!!"), nil
 	}
 
 	log.Printf("%+v\n", body)
 
 	// check token
 	if body.Token != util.BotVerificationToken() {
-		log.Println("invalid token: " + body.Token)
+		log.Fatalln("invalid token: " + body.Token)
 		return util.Response("キサマ何者だ！"), nil
 	}
 
@@ -92,7 +94,8 @@ func invoke(channel, query string) string {
 		Query:   query,
 	})
 	if err != nil {
-		return "なんかごめんなさい。"
+		log.Fatal(err)
+		return "エラーが発生した!!"
 	}
 
 	lmd := l.New(session.New())
@@ -103,7 +106,8 @@ func invoke(channel, query string) string {
 	})
 
 	if err != nil {
-		return "お店を見つけられなかったよ"
+		log.Fatal(err)
+		return "エラーが発生した!!"
 	}
 
 	return "`" + query + "` でお店を探すよ！\nちょっと時間がかかるからまってくれ！"

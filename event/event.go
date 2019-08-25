@@ -42,12 +42,13 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	var event eventBody
 	err := json.Unmarshal([]byte(request.Body), &event)
 	if err != nil {
+		log.Fatal(err)
 		return util.Response("OK"), nil
 	}
 
 	// check token
 	if event.Token != util.BotVerificationToken() {
-		log.Println("invalid token: " + event.Token)
+		log.Fatalln("invalid token: " + event.Token)
 		return util.Response("OK"), nil
 	}
 
@@ -59,7 +60,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	// mention only
 	if event.Event.Type != slackevents.AppMention {
-		log.Println("invalid event type: " + event.Type)
+		log.Fatalln("invalid event type: " + event.Type)
 		return util.Response("OK"), nil
 	}
 

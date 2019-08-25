@@ -31,8 +31,8 @@ func main() {
 
 // HandleRequest func
 func HandleRequest(request event) (string, error) {
-	resp, err := textSearch(request.Query)
-	if err != nil {
+	resp, ok := textSearch(request.Query)
+	if !ok {
 		return "OK", nil
 	}
 
@@ -50,7 +50,7 @@ func HandleRequest(request event) (string, error) {
 	srv, err := customsearch.New(client)
 	if err != nil {
 		log.Fatal(err)
-		return "", nil
+		return "OK", nil
 	}
 
 	cx := util.SearchEngineID()
@@ -63,6 +63,8 @@ func HandleRequest(request event) (string, error) {
 			log.Fatal(err)
 			continue
 		}
+
+		log.Printf("%+v\n", site)
 
 		text += shop.Name + "\n" + site.Items[0].FormattedUrl + "\n"
 		opts = append(opts, slack.AttachmentActionOption{
@@ -100,11 +102,11 @@ func HandleRequest(request event) (string, error) {
 	return "OK", nil
 }
 
-func textSearch(query string) ([]maps.PlacesSearchResult, error) {
+func textSearch(query string) ([]maps.PlacesSearchResult, bool) {
 	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
-		return nil, err
+		log.Fatal(err)
+		return nil, false
 	}
 
 	r := &maps.TextSearchRequest{
@@ -116,11 +118,12 @@ func textSearch(query string) ([]maps.PlacesSearchResult, error) {
 
 	resp, err := c.TextSearch(context.Background(), r)
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
-		return nil, err
+		log.Fatal(err)
+		return nil, false
 	}
 
-	return resp.Results, nil
+	log.Printf("%+v\n", resp.Results)
+	return resp.Results, true
 }
 
 func random(places []maps.PlacesSearchResult) []maps.PlacesSearchResult {
