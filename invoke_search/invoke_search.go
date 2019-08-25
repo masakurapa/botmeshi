@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/masakurapa/slack-bot/config"
@@ -12,6 +14,10 @@ import (
 	"google.golang.org/api/customsearch/v1"
 	"google.golang.org/api/googleapi/transport"
 	"googlemaps.github.io/maps"
+)
+
+const (
+	shopMax = 5
 )
 
 type event struct {
@@ -30,6 +36,13 @@ func HandleRequest(request event) (string, error) {
 		return "OK", nil
 	}
 
+	api := slack.New(util.BotAccessToken())
+
+	if len(resp) == 0 {
+		api.PostMessage(request.Channel, slack.MsgOptionText("お店が見つからなかったよ", false))
+		return "OK", nil
+	}
+
 	text := "お店を見つけたよ！！\n```\n"
 	var opts []slack.AttachmentActionOption
 
@@ -43,34 +56,33 @@ func HandleRequest(request event) (string, error) {
 	cx := util.SearchEngineID()
 
 	// ランダム5店舗
-	for i := 0; i < 5; i++ {
-		site, err := srv.Cse.Siterestrict.List(request.Query + " " + resp[i].Name).Cx(cx).Do()
+	shops := random(resp)
+	for _, shop := range shops {
+		site, err := srv.Cse.Siterestrict.List(request.Query + " " + shop.Name).Cx(cx).Do()
 		if err != nil {
 			log.Fatal(err)
 			continue
 		}
 
-		text += resp[i].Name + "\n" + site.Items[0].FormattedUrl + "\n"
+		text += shop.Name + "\n" + site.Items[0].FormattedUrl + "\n"
 		opts = append(opts, slack.AttachmentActionOption{
-			Text:  resp[i].Name,
-			Value: resp[i].Name,
+			Text:  shop.Name,
+			Value: shop.Name,
 		})
 	}
 
 	text += "```\n"
-
-	api := slack.New(util.BotAccessToken())
 
 	// 店の情報だけまず送る
 	api.PostMessage(request.Channel, slack.MsgOptionText(text, false))
 
 	// interactive
 	opt := slack.MsgOptionAttachments(slack.Attachment{
-		Text:       text,
+		Text:       "いいお店は見つかったかな？",
 		CallbackID: "shop",
 		Actions: []slack.AttachmentAction{
 			{
-				Name:    config.ActionTypeSelect,
+				Name:    config.ActionTypeGo,
 				Type:    "select",
 				Options: opts,
 			},
@@ -108,4 +120,27 @@ func textSearch(query string) ([]maps.PlacesSearchResult, error) {
 	}
 
 	return resp.Results, nil
+}
+
+func random(places []maps.PlacesSearchResult) []maps.PlacesSearchResult {
+	if len(places) <= shopMax {
+		return places
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var num []int
+	var ret []maps.PlacesSearchResult
+	for len(ret) < shopMax {
+		i := rand.Intn(len(places))
+		for _, n := range num {
+			if n == i {
+				continue
+			}
+		}
+		num = append(num, i)
+		ret = append(ret, places[i])
+	}
+
+	return ret
 }

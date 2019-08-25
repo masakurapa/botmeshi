@@ -74,9 +74,9 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	case config.ActionTypeCancel:
 		msg = "ばいびー"
 	case config.ActionTypeGo:
-		msg = body.Actions[0].SelectedOptions[0].Value + "\nごーーーーーーーーーーーーーーーる！！"
+		msg = "`" + body.Actions[0].SelectedOptions[0].Value + "` に\nごーーーーーーーーーーーーーーーる！！"
 	case config.ActionTypeDoNotGo:
-		msg = body.Actions[0].SelectedOptions[0].Value + "\nざんねん"
+		msg = body.Actions[0].SelectedOptions[0].Value + "\nざんねん...。"
 	case config.ActionTypeSelect:
 		msg = invoke(body.Channel.ID, body.Actions[0].SelectedOptions[0].Value)
 	default:
