@@ -7,8 +7,8 @@ aws cloudformation package \
     --output-template-file package.yml
 
 aws cloudformation deploy \
-    --template-file package.yml
-    --stack-name botmeshi-endpoint
+    --template-file package.yml \
+    --stack-name botmeshi-endpoint \
     --s3-bucket $AWS_BUCKET_NAME \
     --s3-prefix deploy \
     --capabilities CAPABILITY_NAMED_IAM \
