@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -31,7 +32,16 @@ func main() {
 
 // HandleRequest func
 func HandleRequest(request event) (string, error) {
-	resp, ok := textSearch(request.Query)
+	s, f := parseQuery(request.Query)
+
+	// 駅情報
+	loc, ok := stationSearch(s)
+	if !ok {
+		return "OK", nil
+	}
+
+	// 店探し
+	resp, ok := textSearch(s, f, loc)
 	if !ok {
 		return "OK", nil
 	}
@@ -64,7 +74,7 @@ func HandleRequest(request event) (string, error) {
 			continue
 		}
 
-		log.Printf("%+v\n", site)
+		log.Printf("%+v\n", site.Items)
 
 		text += shop.Name + "\n" + site.Items[0].FormattedUrl + "\n"
 		opts = append(opts, slack.AttachmentActionOption{
@@ -102,7 +112,41 @@ func HandleRequest(request event) (string, error) {
 	return "OK", nil
 }
 
-func textSearch(query string) ([]maps.PlacesSearchResult, bool) {
+// クエリ文字列を地名・料理名に分割
+func parseQuery(query string) (string, string) {
+	s := strings.Split(query, " ")
+	i := len(s) - 1
+	return strings.Join(s[0:i], " "), s[i]
+}
+
+// 駅の位置情報を持ってくる
+func stationSearch(s string) (*maps.LatLng, bool) {
+	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
+	if err != nil {
+		log.Fatal(err)
+		return nil, false
+	}
+
+	resp, err := c.FindPlaceFromText(context.Background(), &maps.FindPlaceFromTextRequest{
+		Input:     s + "駅",
+		InputType: maps.FindPlaceFromTextInputTypeTextQuery,
+		Fields:    []maps.PlaceSearchFieldMask{"name", "geometry"},
+	})
+	if err != nil {
+		log.Fatal(err)
+		return nil, false
+	}
+
+	if len(resp.Candidates) == 0 {
+		return nil, true
+	}
+
+	// きっと先頭がその駅のハズだ
+	log.Printf("%+v\n", resp.Candidates)
+	return &resp.Candidates[0].Geometry.Location, true
+}
+
+func textSearch(s, f string, loc *maps.LatLng) ([]maps.PlacesSearchResult, bool) {
 	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
 	if err != nil {
 		log.Fatal(err)
@@ -110,10 +154,16 @@ func textSearch(query string) ([]maps.PlacesSearchResult, bool) {
 	}
 
 	r := &maps.TextSearchRequest{
-		Query:    query,
+		Query:    s + " " + f,
 		Region:   "jp",
 		Language: "ja",
 		Type:     maps.PlaceTypeRestaurant,
+	}
+
+	if loc != nil {
+		r.Query = f
+		r.Location = loc
+		r.Radius = 500
 	}
 
 	resp, err := c.TextSearch(context.Background(), r)
