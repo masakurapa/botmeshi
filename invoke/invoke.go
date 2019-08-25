@@ -57,6 +57,8 @@ func HandleRequest(request event) (string, error) {
 		})
 	}
 
+	text += "```\n"
+
 	api := slack.New(util.BotAccessToken())
 
 	// 店の情報だけまず送る
