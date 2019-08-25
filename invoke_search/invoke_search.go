@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -19,6 +20,7 @@ import (
 
 const (
 	shopMax = 5
+	radius  = 500
 )
 
 type event struct {
@@ -67,7 +69,7 @@ func HandleRequest(request event) (string, error) {
 	cx := util.SearchEngineID()
 
 	// ランダム5店舗
-	shops := random(resp)
+	shops := random(filter(resp, loc))
 	for _, shop := range shops {
 		site, err := srv.Cse.Siterestrict.List(request.Query + " " + shop.Name).Cx(cx).Do()
 		if err != nil {
@@ -167,7 +169,7 @@ func textSearch(s, f string, loc *maps.LatLng) ([]maps.PlacesSearchResult, bool)
 	if loc != nil {
 		r.Query = f
 		r.Location = loc
-		r.Radius = 500
+		r.Radius = radius
 	}
 
 	log.Printf("%+v", r)
@@ -179,6 +181,19 @@ func textSearch(s, f string, loc *maps.LatLng) ([]maps.PlacesSearchResult, bool)
 	log.Printf("%+v", resp.Results)
 
 	return resp.Results, true
+}
+
+func filter(places []maps.PlacesSearchResult, loc *maps.LatLng) []maps.PlacesSearchResult {
+	r := float64(radius)
+	var ret []maps.PlacesSearchResult
+	for _, p := range places {
+		m := distance(loc, &p.Geometry.Location)
+		if m > r {
+			continue
+		}
+		ret = append(ret, p)
+	}
+	return ret
 }
 
 func random(places []maps.PlacesSearchResult) []maps.PlacesSearchResult {
@@ -202,4 +217,25 @@ func random(places []maps.PlacesSearchResult) []maps.PlacesSearchResult {
 	}
 
 	return ret
+}
+
+// 球面三角法により、大円距離(メートル)を求める
+func distance(loc1 *maps.LatLng, loc2 *maps.LatLng) float64 {
+	// 緯度経度をラジアンに変換
+	rlat1 := loc1.Lat * math.Pi / 180
+	rlng1 := loc1.Lng * math.Pi / 180
+	rlat2 := loc2.Lat * math.Pi / 180
+	rlng2 := loc2.Lng * math.Pi / 180
+
+	// 2点の中心角(ラジアン)を求める
+	a :=
+		math.Sin(rlat1)*math.Sin(rlat2) +
+			math.Cos(rlat1)*math.Cos(rlat2)*
+				math.Cos(rlng1-rlng2)
+	rr := math.Acos(a)
+
+	// 地球赤道半径(メートル)
+	earthRadius := 6378140.
+	distance := earthRadius * rr
+	return distance
 }
