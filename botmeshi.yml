@@ -22,8 +22,8 @@ Globals:
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
-    RoleName: botmeshi-lambda-role
     Properties:
+      RoleName: botmeshi-lambda-role
       Path: /
       AssumeRolePolicyDocument:
         Version: 2012-10-17
