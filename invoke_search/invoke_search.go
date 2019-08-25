@@ -38,9 +38,15 @@ func HandleRequest(request event) (string, error) {
 	s, f := parseQuery(request.Query)
 	log.Printf("station: %s, food: %s", s, f)
 
+	api := slack.New(util.BotAccessToken())
+
 	// 駅情報
 	loc, ok := stationSearch(s)
 	if !ok {
+		api.PostMessage(
+			request.Channel,
+			slack.MsgOptionText("`"+request.Query+"` の駅検索はGoogleさんの制限中...1分待って（3回目はもうNG）", false),
+		)
 		return "OK", nil
 	}
 
@@ -50,10 +56,12 @@ func HandleRequest(request event) (string, error) {
 	// 店探し
 	resp, ok := textSearch(s, f, loc)
 	if !ok {
+		api.PostMessage(
+			request.Channel,
+			slack.MsgOptionText("`"+request.Query+"` の店検索はGoogleさんの制限中...1分待って（3回目はもうNG）", false),
+		)
 		return "OK", nil
 	}
-
-	api := slack.New(util.BotAccessToken())
 
 	if len(resp) == 0 {
 		api.PostMessage(request.Channel, slack.MsgOptionText("お店が見つからなかったよ", false))
