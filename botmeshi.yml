@@ -1,6 +1,24 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: 'AWS::Serverless-2016-10-31'
 
+Parameters:
+  BotVerificationToken:
+    Type: String
+  BotAccessToken:
+    Type: String
+  SearchEngineId:
+    Type: String
+  PlaceApiKey:
+    Type: String
+  CustomSearchApiKey:
+    Type: String
+
+Globals:
+  Function:
+    Runtime: go1.x
+    MemorySize: 128
+    Timeout: 5
+
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
@@ -34,11 +52,12 @@ Resources:
     Properties:
       FunctionName: botmeshi-event
       Handler: event
-      Runtime: go1.x
-      MemorySize: 128
-      Timeout: 5
       CodeUri: ./built/event
       Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          BOT_VERIFICATION_TOKEN: !Ref BotVerificationToken
+          BOT_ACCESS_TOKEN: !Ref BotAccessToken
       Events:
         Get:
           Type: Api
@@ -62,11 +81,12 @@ Resources:
     Properties:
       FunctionName: botmeshi-interactive
       Handler: interactive
-      Runtime: go1.x
-      MemorySize: 128
-      Timeout: 5
       CodeUri: ./built/interactive
       Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          BOT_VERIFICATION_TOKEN: !Ref BotVerificationToken
+          INVOKE_LAMBDA_ARN: !GetAtt InvokeSearchLambdaFunction.Arn
       Events:
         Get:
           Type: Api
@@ -90,11 +110,14 @@ Resources:
     Properties:
       FunctionName: botmeshi-invoke-search
       Handler: invoke-search
-      Runtime: go1.x
-      MemorySize: 128
-      Timeout: 5
       CodeUri: ./built/invoke-search
       Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          BOT_ACCESS_TOKEN: !Ref BotAccessToken
+          SEARCH_ENGINE_ID: !Ref SearchEngineId
+          PLACE_API_KEY: !Ref PlaceApiKey
+          CUSTOM_SEARCH_API_KEY: !Ref CustomSearchApiKey
 
   InvokeSearchLogGroup:
     Type: AWS::Logs::LogGroup

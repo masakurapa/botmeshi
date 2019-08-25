@@ -12,5 +12,9 @@ jobs:
         - pip install --user awscli
       before_script:
         - sh build.sh
-      # script:
-        # - aws cloudformation
+      script:
+        - sh deploy.sh
+
+cache:
+  directories:
+    - /home/travis/gopath
