@@ -52,7 +52,7 @@ Resources:
     Properties:
       FunctionName: botmeshi-event
       Handler: event
-      CodeUri: ./built/event
+      CodeUri: ./built/event.zip
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
@@ -81,7 +81,7 @@ Resources:
     Properties:
       FunctionName: botmeshi-interactive
       Handler: interactive
-      CodeUri: ./built/interactive
+      CodeUri: ./built/interactive.zip
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
@@ -110,7 +110,7 @@ Resources:
     Properties:
       FunctionName: botmeshi-invoke-search
       Handler: invoke-search
-      CodeUri: ./built/invoke-search
+      CodeUri: ./built/invoke-search.zip
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
