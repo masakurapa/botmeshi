@@ -80,6 +80,7 @@ func HandleRequest(request event) (string, error) {
 	opt := slack.MsgOptionAttachments(slack.Attachment{
 		Text:       "いいお店は見つかったかな？",
 		CallbackID: "shop",
+		Color:      "#ff6633",
 		Actions: []slack.AttachmentAction{
 			{
 				Name:    config.ActionTypeGo,

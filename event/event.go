@@ -84,6 +84,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	opt := slack.MsgOptionAttachments(slack.Attachment{
 		Text:       text + " で何が食べたい？",
 		CallbackID: "menu",
+		Color:      "#ff6633",
 		Actions: []slack.AttachmentAction{
 			{
 				Name:    config.ActionTypeSelect,
