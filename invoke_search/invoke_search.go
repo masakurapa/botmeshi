@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/masakurapa/slack-bot/config"
@@ -201,22 +200,12 @@ func random(places []maps.PlacesSearchResult) []maps.PlacesSearchResult {
 		return places
 	}
 
-	rand.Seed(time.Now().UnixNano())
-
-	var num []int
-	var ret []maps.PlacesSearchResult
-	for len(ret) < shopMax {
-		i := rand.Intn(len(places))
-		for _, n := range num {
-			if n == i {
-				continue
-			}
-		}
-		num = append(num, i)
-		ret = append(ret, places[i])
+	n := len(places)
+	for i := n - 1; i >= 0; i-- {
+		j := rand.Intn(i + 1)
+		places[i], places[j] = places[j], places[i]
 	}
-
-	return ret
+	return places[:shopMax]
 }
 
 // 球面三角法により、大円距離(メートル)を求める
