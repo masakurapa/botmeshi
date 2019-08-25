@@ -59,11 +59,11 @@ Resources:
           BOT_VERIFICATION_TOKEN: !Ref BotVerificationToken
           BOT_ACCESS_TOKEN: !Ref BotAccessToken
       Events:
-        Get:
+        Post:
           Type: Api
           Properties:
             Path: /event
-            Method: Get
+            Method: Post
             RestApiId: !Ref Api
 
   EventLogGroup:
@@ -88,11 +88,11 @@ Resources:
           BOT_VERIFICATION_TOKEN: !Ref BotVerificationToken
           INVOKE_LAMBDA_ARN: !GetAtt InvokeSearchLambdaFunction.Arn
       Events:
-        Get:
+        Post:
           Type: Api
           Properties:
             Path: /interactive
-            Method: Get
+            Method: Post
             RestApiId: !Ref Api
 
   InteractiveLogGroup:
