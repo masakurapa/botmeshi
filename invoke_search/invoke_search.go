@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/masakurapa/slack-bot/config"
@@ -41,6 +42,9 @@ func HandleRequest(request event) (string, error) {
 	if !ok {
 		return "OK", nil
 	}
+
+	// 不本意だが1秒待つ
+	time.Sleep(time.Second)
 
 	// 店探し
 	resp, ok := textSearch(s, f, loc)
