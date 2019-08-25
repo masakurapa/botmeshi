@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -60,15 +59,15 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 
 	// mention only
-	if event.Event.Type != slackevents.AppMention && event.Event.Type != slackevents.Message {
+	if event.Event.Type != slackevents.AppMention {
 		log.Fatalln("invalid event type: " + event.Event.Type)
 		return util.Response("OK"), nil
 	}
 
 	api := slack.New(util.BotAccessToken())
 
-	// メンション用の文字列があればけしとく
-	text := strings.TrimSpace(removeMention(event.Event.Text))
+	// 先頭12文字はメンション用の固定文字なのでいらない
+	text := strings.TrimSpace(event.Event.Text[12:])
 
 	if text == "" {
 		api.PostMessage(event.Event.Channel, slack.MsgOptionText("探したい駅名をいれてくれ", false))
@@ -104,9 +103,4 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	api.PostMessage(event.Event.Channel, opt)
 	return util.Response("OK"), nil
-}
-
-func removeMention(s string) string {
-	reg := regexp.MustCompile(`<@(.*?)>`)
-	return reg.ReplaceAllString(s, "")
 }
