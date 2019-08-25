@@ -110,6 +110,7 @@ Resources:
     Properties:
       FunctionName: botmeshi-invoke-search
       Handler: invoke-search
+      Timeout: 60
       CodeUri: ./built/invoke-search.zip
       Role: !GetAtt LambdaRole.Arn
       Environment:
