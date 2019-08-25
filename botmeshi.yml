@@ -1,0 +1,240 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    RoleName: botmeshi-lambda-role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+               - Effect: "Allow"
+                 Action:
+                  - logs:*
+                  - lambda:InvokeFunction
+                 Resource: "*"
+
+  EventLambdaFunction:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - LambdaRole
+    Properties:
+      FunctionName: botmeshi-event
+      Handler: event
+      Runtime: go1.x
+      MemorySize: 128
+      Timeout: 5
+      CodeUri: ./built/event
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /event
+            Method: Get
+            RestApiId: !Ref Api
+
+  EventLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn:
+      - EventLambdaFunction
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Join ["/", ["/aws/lambda", !Ref EventLambdaFunction]]
+
+  InteractiveLambdaFunction:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - LambdaRole
+    Properties:
+      FunctionName: botmeshi-interactive
+      Handler: interactive
+      Runtime: go1.x
+      MemorySize: 128
+      Timeout: 5
+      CodeUri: ./built/interactive
+      Role: !GetAtt LambdaRole.Arn
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /interactive
+            Method: Get
+            RestApiId: !Ref Api
+
+  InteractiveLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn:
+      - InteractiveLambdaFunction
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Join ["/", ["/aws/lambda", !Ref InteractiveLambdaFunction]]
+
+  InvokeSearchLambdaFunction:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - LambdaRole
+    Properties:
+      FunctionName: botmeshi-invoke-search
+      Handler: invoke-search
+      Runtime: go1.x
+      MemorySize: 128
+      Timeout: 5
+      CodeUri: ./built/invoke-search
+      Role: !GetAtt LambdaRole.Arn
+
+  InvokeSearchLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn:
+      - InvokeSearchLambdaFunction
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Join ["/", ["/aws/lambda", !Ref InvokeSearchLambdaFunction]]
+
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: botmeshi-api
+      StageName: botmeshi
+      Cors:
+        AllowMethods: "'POST'"
+        AllowOrigin: "'*'"
+      DefinitionBody:
+        swagger: 2.0
+        info:
+          version: 2019-08-24T09:42:02Z
+          title: botmeshi-api
+        basePath: "/botmeshi"
+        schemes:
+          - "https"
+        paths:
+          /event:
+            post:
+              produces:
+                - "application/json"
+              responses:
+                200:
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                uri: !Join
+                  - "/"
+                  - - "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions"
+                    - !GetAtt EventLambdaFunction.Arn
+                    - "invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                200:
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: "mock"
+          /interactive:
+            post:
+              produces:
+                - "application/json"
+              responses:
+                200:
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                uri: !Join
+                  - "/"
+                  - - "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions"
+                    - !GetAtt InteractiveLambdaFunction.Arn
+                    - "invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+            options:
+              consumes:
+                - "application/json"
+              produces:
+                - "application/json"
+              responses:
+                200:
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: "mock"
+        definitions:
+          Empty:
+            type: "object"
+            title: "Empty Schema"
