@@ -48,7 +48,7 @@ func main() {
 
 // HandleRequest func
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Printf("%+v\n", request)
+	log.Printf("%+v", request)
 
 	// 先頭8文字(payload=)以外を使う
 	jsonStr, err := url.QueryUnescape(request.Body[8:])
@@ -63,7 +63,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return util.Response("エラーが発生した!!"), nil
 	}
 
-	log.Printf("%+v\n", body)
+	log.Printf("%+v", body)
 
 	// check token
 	if body.Token != util.BotVerificationToken() {

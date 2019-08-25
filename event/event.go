@@ -37,7 +37,7 @@ func main() {
 
 // HandleRequest func
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Printf("%+v\n", request)
+	log.Printf("%+v", request)
 
 	var event eventBody
 	err := json.Unmarshal([]byte(request.Body), &event)
@@ -70,7 +70,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	text := strings.TrimSpace(event.Event.Text[12:])
 
 	if text == "" {
-		api.PostMessage(event.Event.Channel, slack.MsgOptionText("探したい地名をいれてくれ", false))
+		api.PostMessage(event.Event.Channel, slack.MsgOptionText("探したい駅名をいれてくれ", false))
 		return util.Response("OK"), nil
 	}
 

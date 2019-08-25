@@ -33,6 +33,7 @@ func main() {
 // HandleRequest func
 func HandleRequest(request event) (string, error) {
 	s, f := parseQuery(request.Query)
+	log.Printf("station: %s, food: %s", s, f)
 
 	// 駅情報
 	loc, ok := stationSearch(s)
@@ -74,7 +75,7 @@ func HandleRequest(request event) (string, error) {
 			continue
 		}
 
-		log.Printf("%+v\n", site.Items)
+		log.Printf("%+v", site.Items[0])
 
 		text += shop.Name + "\n" + site.Items[0].FormattedUrl + "\n"
 		opts = append(opts, slack.AttachmentActionOption{
@@ -127,22 +128,25 @@ func stationSearch(s string) (*maps.LatLng, bool) {
 		return nil, false
 	}
 
-	resp, err := c.FindPlaceFromText(context.Background(), &maps.FindPlaceFromTextRequest{
+	r := &maps.FindPlaceFromTextRequest{
 		Input:     s + "駅",
 		InputType: maps.FindPlaceFromTextInputTypeTextQuery,
 		Fields:    []maps.PlaceSearchFieldMask{"name", "geometry"},
-	})
+	}
+
+	log.Printf("%+v", r)
+	resp, err := c.FindPlaceFromText(context.Background(), r)
 	if err != nil {
 		log.Fatal(err)
 		return nil, false
 	}
+	log.Printf("%+v", resp.Candidates)
 
 	if len(resp.Candidates) == 0 {
 		return nil, true
 	}
 
 	// きっと先頭がその駅のハズだ
-	log.Printf("%+v\n", resp.Candidates)
 	return &resp.Candidates[0].Geometry.Location, true
 }
 
@@ -166,13 +170,14 @@ func textSearch(s, f string, loc *maps.LatLng) ([]maps.PlacesSearchResult, bool)
 		r.Radius = 500
 	}
 
+	log.Printf("%+v", r)
 	resp, err := c.TextSearch(context.Background(), r)
 	if err != nil {
 		log.Fatal(err)
 		return nil, false
 	}
+	log.Printf("%+v", resp.Results)
 
-	log.Printf("%+v\n", resp.Results)
 	return resp.Results, true
 }
 
