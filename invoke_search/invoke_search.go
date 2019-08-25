@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	shopMax = 5
-	radius  = 500
+	shopMax      = 5
+	radius       = 500
+	radiusBuffer = 50
 )
 
 type event struct {
@@ -187,7 +188,8 @@ func textSearch(s, f string, loc *maps.LatLng) ([]maps.PlacesSearchResult, bool)
 }
 
 func filter(places []maps.PlacesSearchResult, loc *maps.LatLng) []maps.PlacesSearchResult {
-	r := float64(radius)
+	// 場所検索時の半径に少しバッファをもたせる
+	r := float64(radius + radiusBuffer)
 	var ret []maps.PlacesSearchResult
 	for _, p := range places {
 		m := distance(loc, &p.Geometry.Location)
