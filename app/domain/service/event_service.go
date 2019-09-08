@@ -35,7 +35,6 @@ func NewEventService(n repository.Notification) EventService {
 
 // Exec func
 func (s *eventService) Exec(p *api.Parameter) error {
-	// 先頭12文1字はメンション用の固定文字なのでいらないはず
 	value := s.parse(p.Event.Text)
 
 	if value == "" {
@@ -50,6 +49,10 @@ func (s *eventService) Exec(p *api.Parameter) error {
 }
 
 func (s *eventService) parse(text string) string {
+	// 先頭12文字はメンション用の固定文字なのでいらない
+	if len(text) < 12 {
+		return ""
+	}
 	return strings.TrimSpace(text[12:])
 }
 
@@ -64,7 +67,7 @@ func (s *eventService) interactive(p *api.Parameter, text string) error {
 
 	return s.notification.PostRichMessage(notification.Option{
 		Target:    p.ChannelID,
-		Message:   p.Event.Text,
+		Message:   text + " で何が食べたい？",
 		MessageID: postID,
 		Color:     "#ff6633",
 		RichMessageOptions: []notification.RichMessageOption{

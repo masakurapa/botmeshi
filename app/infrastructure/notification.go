@@ -1,4 +1,4 @@
-package gateway
+package infrastructure
 
 import (
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
@@ -18,12 +18,10 @@ func NewNotificationClient() repository.Notification {
 	}
 }
 
-// PostMessage file
 func (n *notificationClient) PostMessage(opt notification.Option) error {
 	return n.post(opt.Target, slack.MsgOptionText(opt.Message, false))
 }
 
-// PostRichMessage file
 func (n *notificationClient) PostRichMessage(opt notification.Option) error {
 	var actions []slack.AttachmentAction
 	for _, o := range opt.RichMessageOptions {

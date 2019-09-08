@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	notification := infrastructure.NewNotificationClient()
-	service := service.NewEventService(notification)
-	uc := usecase.NewEventUseCase(service)
-	lambda.Start(handler.NewEventHandler(uc).Handler)
+	fnc := infrastructure.NewInvokeFunction()
+	service := service.NewInteractiveService(fnc)
+	uc := usecase.NewInteractiveUseCase(service)
+	lambda.Start(handler.NewInteractiveHandler(uc).Handler)
 }

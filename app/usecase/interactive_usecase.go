@@ -39,5 +39,5 @@ func (uc *interactiveUseCase) Validate(body *api.Parameter) error {
 
 // Exec event
 func (uc *interactiveUseCase) Exec(body *api.Parameter) error {
-	return nil
+	return uc.service.Exec(body)
 }

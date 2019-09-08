@@ -27,6 +27,14 @@ func (t *testEventUseCaseMock) Exec(_ *api.Parameter) error {
 	return t.execMock()
 }
 
+func TestNewEventHandler(t *testing.T) {
+	func() {
+		s := NewEventHandler(&testEventUseCaseMock{})
+		_, ok := s.(Handler)
+		assert.True(t, ok)
+	}()
+}
+
 func TestEventHandler(t *testing.T) {
 	uc := testEventUseCaseMock{
 		parseMock:    func(body string) (*api.Parameter, error) { return &api.Parameter{}, nil },

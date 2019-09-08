@@ -17,6 +17,14 @@ type testInteractiveUseCaseMock struct {
 	execMock     func() error
 }
 
+func TestNewInteractiveHandler(t *testing.T) {
+	func() {
+		s := NewInteractiveHandler(&testInteractiveUseCaseMock{})
+		_, ok := s.(Handler)
+		assert.True(t, ok)
+	}()
+}
+
 func (t *testInteractiveUseCaseMock) Parse(body string) (*api.Parameter, error) {
 	return t.parseMock(body)
 }

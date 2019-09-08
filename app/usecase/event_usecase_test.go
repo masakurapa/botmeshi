@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -13,10 +14,23 @@ import (
 
 type testEventServiceMock struct {
 	service.EventService
+	execMock func() error
+}
+
+func (t *testEventServiceMock) Exec(p *api.Parameter) error {
+	return t.execMock()
+}
+
+func TestNewEventUseCase(t *testing.T) {
+	func() {
+		s := NewEventUseCase(&testEventServiceMock{})
+		_, ok := s.(UseCase)
+		assert.True(t, ok)
+	}()
 }
 
 func TestEventUseCase_Parse(t *testing.T) {
-	s := testEventServiceMock{}
+	s := &testEventServiceMock{}
 
 	// 正常系
 	func() {
@@ -36,7 +50,7 @@ func TestEventUseCase_Parse(t *testing.T) {
 }
 
 func TestEventUseCase_Validate(t *testing.T) {
-	s := testEventServiceMock{}
+	s := &testEventServiceMock{}
 	token := "event token"
 	os.Setenv(util.APIVerificationTokenKey, token)
 
@@ -73,8 +87,17 @@ func TestEventUseCase_Exec(t *testing.T) {
 	s := testEventServiceMock{}
 
 	// 正常系
-	func() {
-		err := NewEventUseCase(s).Exec(&api.Parameter{})
+	func(s testEventServiceMock) {
+		s.execMock = func() error { return nil }
+		err := NewEventUseCase(&s).Exec(&api.Parameter{})
 		assert.Nil(t, err)
-	}()
+	}(s)
+
+	// 異常系
+	func(s testEventServiceMock) {
+		s.execMock = func() error { return fmt.Errorf("exec error") }
+		err := NewEventUseCase(&s).Exec(&api.Parameter{})
+		assert.NotNil(t, err)
+		assert.Equal(t, "exec error", err.Error())
+	}(s)
 }
