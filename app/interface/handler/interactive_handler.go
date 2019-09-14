@@ -18,27 +18,28 @@ func NewInteractiveHandler(uc usecase.InteractiveUseCase, logger log.Logger) Han
 
 // Handler function
 func (h *interactiveHandler) Handler(req http.Request) (http.Response, error) {
-	h.log.Info("Start InteractiveHandler: %s", req.Body)
+	h.log.Start("InteractiveHandler", "Handler", req)
 
 	p, err := h.uc.Parse(req.Body)
 	if err != nil {
-		h.log.Error("Parse error: %s", err.Error())
+		h.log.Error("Parse error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
-	h.log.Info("Parsed parameters: %+v", p)
+	h.log.Info("Parsed parameters", p)
 
 	if err = h.uc.Validate(p); err != nil {
-		h.log.Error("Validate error: %s", err.Error())
+		h.log.Error("Validate error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
 	msg, err := h.uc.Exec(p)
 	if err != nil {
-		h.log.Error("Exec error: %s", err.Error())
+		h.log.Error("Exec error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
-	h.log.Info("End InteractiveHandler")
-	return http.NewResponse(http.StatusOK, msg), nil
+	resp := http.NewResponse(http.StatusOK, msg)
+	h.log.End("EventHandler", "Handler", resp)
+	return resp, nil
 }

@@ -18,24 +18,25 @@ func NewEventHandler(uc usecase.EventUseCase, logger log.Logger) Handler {
 
 // Handler function
 func (h *eventHandler) Handler(req http.Request) (http.Response, error) {
-	h.log.Info("Start EventHandler: %s", req.Body)
+	h.log.Start("EventHandler", "Handler", req)
 
 	p, err := h.uc.Parse(req.Body)
 	if err != nil {
-		h.log.Error("Parse error: %s", err.Error())
+		h.log.Error("Parse error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
 	if err = h.uc.Validate(p); err != nil {
-		h.log.Error("Validate error: %s", err.Error())
+		h.log.Error("Validate error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
 	if err = h.uc.Exec(p); err != nil {
-		h.log.Error("Exec error: %s", err.Error())
+		h.log.Error("Exec error", err)
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
-	h.log.Info("End EventHandler")
-	return http.NewResponse(http.StatusOK, "Success Event"), nil
+	resp := http.NewResponse(http.StatusOK, "Success Event")
+	h.log.End("EventHandler", "Handler", resp)
+	return resp, nil
 }
