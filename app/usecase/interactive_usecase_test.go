@@ -33,16 +33,22 @@ func TestInteractiveUseCase_Parse(t *testing.T) {
 
 	// 正常系
 	func() {
-		p, err := NewInteractiveUseCase(&s, &loggerMock{}).Parse("{}")
-		assert.Nil(t, err)
-		if assert.NotNil(t, p) {
+		p, err := NewInteractiveUseCase(&s, &loggerMock{}).Parse("payload=%7B%7D")
+		if assert.Nil(t, err) {
 			assert.Equal(t, reflect.TypeOf(&api.Parameter{}), reflect.TypeOf(p))
 		}
 	}()
 
-	// 異常系
+	// 異常系（不正なURLエンコード文字列
 	func() {
-		p, err := NewInteractiveUseCase(&s, &loggerMock{}).Parse("not json body")
+		p, err := NewInteractiveUseCase(&s, &loggerMock{}).Parse("payload=%")
+		assert.NotNil(t, err)
+		assert.Nil(t, p)
+	}()
+
+	// 異常系（不正なJSON
+	func() {
+		p, err := NewInteractiveUseCase(&s, &loggerMock{}).Parse("payload=%7B")
 		assert.NotNil(t, err)
 		assert.Nil(t, p)
 	}()

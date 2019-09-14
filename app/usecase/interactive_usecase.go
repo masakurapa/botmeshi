@@ -3,11 +3,16 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/service"
 	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
+)
+
+const (
+	payloadChar = "payload="
 )
 
 // InteractiveUseCase interface
@@ -29,8 +34,14 @@ func NewInteractiveUseCase(s service.InteractiveService, logger log.Logger) Inte
 
 // Parse request
 func (uc *interactiveUseCase) Parse(body string) (*api.Parameter, error) {
+	// 先頭がpayload=で始まるURLエンコードされた文字列になっている
+	jsonStr, err := url.QueryUnescape(body[len(payloadChar):])
+	if err != nil {
+		return nil, err
+	}
+
 	eb := api.InteractiveBody{}
-	if err := json.Unmarshal([]byte(body), &eb); err != nil {
+	if err := json.Unmarshal([]byte(jsonStr), &eb); err != nil {
 		return nil, err
 	}
 	return eb.ToParameter(), nil
