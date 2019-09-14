@@ -27,5 +27,5 @@ func (l *logger) Error(format string, arg ...interface{}) {
 }
 
 func (*logger) log(level, format string, arg ...interface{}) {
-	fmt.Printf("["+level+"]"+format+"\n", arg)
+	fmt.Printf("["+level+"]"+format+"\n", arg...)
 }

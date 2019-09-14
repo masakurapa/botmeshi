@@ -28,22 +28,25 @@ func (n *notificationClient) PostMessage(opt notification.Option) error {
 func (n *notificationClient) PostRichMessage(opt notification.Option) error {
 	var actions []slack.AttachmentAction
 	for _, o := range opt.RichMessageOptions {
-		action := slack.AttachmentAction{
-			Name: o.ActionName,
-			Type: o.ActionType,
-		}
+		var action slack.AttachmentAction
 
 		switch o.ActionType {
 		case notification.ActionTypeButton:
-			action.Text = o.Text
-			action.Style = o.Style
+			action = slack.AttachmentAction{
+				Name:  o.ActionName,
+				Type:  o.ActionType,
+				Text:  o.Text,
+				Style: o.Style,
+			}
 		case notification.ActionTypeSelect:
-			action.Options = n.makeAttachmentActionOption(o.SelectOptions)
+			action = slack.AttachmentAction{
+				Name:    o.ActionName,
+				Type:    o.ActionType,
+				Options: n.makeAttachmentActionOption(o.SelectOptions),
+			}
 		}
 
-		actions = append(actions, slack.AttachmentAction{
-			Name: o.ActionType,
-		})
+		actions = append(actions, action)
 	}
 
 	return n.post(opt.Target, slack.MsgOptionAttachments(slack.Attachment{
