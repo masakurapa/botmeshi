@@ -8,7 +8,6 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/service"
-	"github.com/masakurapa/botmeshi/app/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,7 +51,7 @@ func TestEventUseCase_Parse(t *testing.T) {
 func TestEventUseCase_Validate(t *testing.T) {
 	s := &testEventServiceMock{}
 	token := "event token"
-	os.Setenv(util.APIVerificationTokenKey, token)
+	os.Setenv("BOT_VERIFICATION_TOKEN", token)
 
 	// 正常系
 	func() {

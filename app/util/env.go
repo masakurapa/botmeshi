@@ -2,14 +2,9 @@ package util
 
 import "os"
 
-const (
-	// APIVerificationTokenKey APIトークンのキー
-	APIVerificationTokenKey = "API_VERIFICATION_TOKEN"
-)
-
-// APIVerificationToken returns BOT_VERIFICATION_TOKEN
-func APIVerificationToken() string {
-	return os.Getenv(APIVerificationTokenKey)
+// BotVerificationToken returns BOT_VERIFICATION_TOKEN
+func BotVerificationToken() string {
+	return os.Getenv("BOT_VERIFICATION_TOKEN")
 }
 
 // BotAccessToken returns BOT_ACCESS_TOKEN

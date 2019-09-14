@@ -39,7 +39,7 @@ func (uc *eventUseCase) Parse(body string) (*api.Parameter, error) {
 // Validate request
 func (uc *eventUseCase) Validate(body *api.Parameter) error {
 	// check token
-	if body.Token != util.APIVerificationToken() {
+	if body.Token != util.BotVerificationToken() {
 		return fmt.Errorf("token error")
 	}
 
