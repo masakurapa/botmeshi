@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/masakurapa/botmeshi/app/domain/model"
 	"github.com/masakurapa/botmeshi/app/domain/service"
 	"github.com/masakurapa/botmeshi/app/infrastructure"
 	"github.com/masakurapa/botmeshi/app/interface/handler"
@@ -18,7 +19,8 @@ func main() {
 	}
 
 	notification := infrastructure.NewNotificationClient(logger)
-	service := service.NewSearchService(search, notification, logger)
+	randomizer := model.NewRandomizer()
+	service := service.NewSearchService(search, notification, randomizer, logger)
 	uc := usecase.NewSearchUseCase(service, logger)
 	lambda.Start(handler.NewSearchHandler(uc, logger).Handler)
 }
