@@ -5,18 +5,18 @@ import (
 	"testing"
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
-	"github.com/masakurapa/botmeshi/app/domain/model/invoke"
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
+	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/stretchr/testify/assert"
 )
 
 type testInfokeFunctionMock struct {
 	repository.InvokeFunction
-	execMock func(*invoke.Parameter) error
+	execMock func(*search.Request) error
 }
 
-func (t *testInfokeFunctionMock) Exec(p *invoke.Parameter) error {
+func (t *testInfokeFunctionMock) Exec(p *search.Request) error {
 	return t.execMock(p)
 }
 
@@ -33,7 +33,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// キャンセルアクション
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
@@ -50,7 +50,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// ゴールアクション
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
@@ -67,7 +67,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// 非ゴールアクション
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
@@ -84,7 +84,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// 選択アクション
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			assert.Equal(t, "12345", p.Target)
 			assert.Equal(t, "fuga", p.Query)
 			return nil
@@ -102,7 +102,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// 選択アクション（エラーあり）
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			return fmt.Errorf("exec error")
 		}
 		s, err := NewInteractiveService(&fnc).Exec(&api.Parameter{
@@ -119,7 +119,7 @@ func TestInvokeService_Exec(t *testing.T) {
 
 	// 不正なアクション
 	func(fnc testInfokeFunctionMock) {
-		fnc.execMock = func(p *invoke.Parameter) error {
+		fnc.execMock = func(p *search.Request) error {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}

@@ -6,11 +6,11 @@ import (
 )
 
 type eventHandler struct {
-	uc usecase.UseCase
+	uc usecase.EventUseCase
 }
 
 // NewEventHandler returns Handler instance
-func NewEventHandler(uc usecase.UseCase) Handler {
+func NewEventHandler(uc usecase.EventUseCase) Handler {
 	return &eventHandler{uc: uc}
 }
 

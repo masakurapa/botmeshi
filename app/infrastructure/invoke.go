@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/masakurapa/botmeshi/app/domain/model/invoke"
+	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/masakurapa/botmeshi/app/util"
 )
@@ -23,7 +23,7 @@ func NewInvokeFunction() repository.InvokeFunction {
 	}
 }
 
-func (f *invokeFunction) Exec(p *invoke.Parameter) error {
+func (f *invokeFunction) Exec(p *search.Request) error {
 	s, err := json.Marshal(p)
 	if err != nil {
 		return fmt.Errorf("json encode error")

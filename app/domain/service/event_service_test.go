@@ -87,7 +87,7 @@ func TestEventService_Exec(t *testing.T) {
 		n.postRichMessageMock = func(opt notification.Option) error {
 			assert.Equal(t, "12345", opt.Target)
 			assert.Equal(t, "hoge で何が食べたい？", opt.Message)
-			assert.Equal(t, postID, opt.MessageID)
+			assert.Equal(t, postEventMessageID, opt.MessageID)
 			assert.Equal(t, "#ff6633", opt.Color)
 			assert.Equal(t, []notification.RichMessageOption{
 				{

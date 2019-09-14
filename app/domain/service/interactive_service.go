@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
-	"github.com/masakurapa/botmeshi/app/domain/model/invoke"
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
+	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 )
 
@@ -33,7 +33,7 @@ func (s *interactiveService) Exec(p *api.Parameter) (msg string, err error) {
 	case notification.ActionNameDoNotGo:
 		msg = "ざんねん...。"
 	case notification.ActionNameSelect:
-		err = s.fnc.Exec(&invoke.Parameter{
+		err = s.fnc.Exec(&search.Request{
 			Target: p.ChannelID,
 			Query:  p.Action.SelectedOptions[0],
 		})

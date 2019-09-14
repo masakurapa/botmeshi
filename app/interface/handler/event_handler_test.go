@@ -11,7 +11,7 @@ import (
 )
 
 type testEventUseCaseMock struct {
-	usecase.UseCase
+	usecase.EventUseCase
 	parseMock    func(body string) (*api.Parameter, error)
 	validateMock func() error
 	execMock     func() error

@@ -20,6 +20,12 @@ Globals:
     Timeout: 5
 
 Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: botmeshi-content-bucket
+
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -41,9 +47,14 @@ Resources:
             Statement:
                - Effect: "Allow"
                  Action:
-                  - logs:*
-                  - lambda:InvokeFunction
+                   - logs:*
+                   - lambda:InvokeFunction
                  Resource: "*"
+               - Effect: "Allow"
+                 Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                 Resource: !Sub "${S3Bucket.Arn}/*"
 
   EventLambdaFunction:
     Type: AWS::Serverless::Function

@@ -6,11 +6,11 @@ import (
 )
 
 type interactiveHandler struct {
-	uc usecase.UseCase
+	uc usecase.InteractiveUseCase
 }
 
 // NewInteractiveHandler returns Handler instance
-func NewInteractiveHandler(uc usecase.UseCase) Handler {
+func NewInteractiveHandler(uc usecase.InteractiveUseCase) Handler {
 	return &interactiveHandler{uc: uc}
 }
 
@@ -25,9 +25,10 @@ func (h *interactiveHandler) Handler(req http.Request) (http.Response, error) {
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
-	if err = h.uc.Exec(p); err != nil {
+	msg, err := h.uc.Exec(p)
+	if err != nil {
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
-	return http.NewResponse(http.StatusOK, "Success Interactive"), nil
+	return http.NewResponse(http.StatusOK, msg), nil
 }

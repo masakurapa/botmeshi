@@ -11,10 +11,20 @@ import (
 )
 
 type testInteractiveUseCaseMock struct {
-	usecase.UseCase
+	usecase.InteractiveUseCase
 	parseMock    func(body string) (*api.Parameter, error)
 	validateMock func() error
-	execMock     func() error
+	execMock     func() (string, error)
+}
+
+func (t *testInteractiveUseCaseMock) Parse(body string) (*api.Parameter, error) {
+	return t.parseMock(body)
+}
+func (t *testInteractiveUseCaseMock) Validate(_ *api.Parameter) error {
+	return t.validateMock()
+}
+func (t *testInteractiveUseCaseMock) Exec(_ *api.Parameter) (string, error) {
+	return t.execMock()
 }
 
 func TestNewInteractiveHandler(t *testing.T) {
@@ -25,21 +35,11 @@ func TestNewInteractiveHandler(t *testing.T) {
 	}()
 }
 
-func (t *testInteractiveUseCaseMock) Parse(body string) (*api.Parameter, error) {
-	return t.parseMock(body)
-}
-func (t *testInteractiveUseCaseMock) Validate(_ *api.Parameter) error {
-	return t.validateMock()
-}
-func (t *testInteractiveUseCaseMock) Exec(_ *api.Parameter) error {
-	return t.execMock()
-}
-
 func TestInteractiveHandler(t *testing.T) {
 	uc := testInteractiveUseCaseMock{
 		parseMock:    func(body string) (*api.Parameter, error) { return &api.Parameter{}, nil },
 		validateMock: func() error { return nil },
-		execMock:     func() error { return nil },
+		execMock:     func() (string, error) { return "exec success", nil },
 	}
 
 	// 正常系
@@ -47,7 +47,7 @@ func TestInteractiveHandler(t *testing.T) {
 		res, err := NewInteractiveHandler(&uc).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
-			assert.Equal(t, "Success Interactive", res.Body)
+			assert.Equal(t, "exec success", res.Body)
 		}
 	}(uc)
 
@@ -75,7 +75,7 @@ func TestInteractiveHandler(t *testing.T) {
 
 	// Exec()のエラー
 	func(uc testInteractiveUseCaseMock) {
-		uc.execMock = func() error { return fmt.Errorf("exec error") }
+		uc.execMock = func() (string, error) { return "exec success", fmt.Errorf("exec error") }
 
 		res, err := NewInteractiveHandler(&uc).Handler(http.Request{})
 		if assert.Nil(t, err) {

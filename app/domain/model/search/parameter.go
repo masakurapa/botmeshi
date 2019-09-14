@@ -1,7 +1,7 @@
-package invoke
+package search
 
-// Parameter struct
-type Parameter struct {
+// Request struct
+type Request struct {
 	Target string `json:"target"`
 	Query  string `json:"query"`
 }

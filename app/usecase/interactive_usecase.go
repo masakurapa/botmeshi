@@ -9,12 +9,19 @@ import (
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
+// InteractiveUseCase interface
+type InteractiveUseCase interface {
+	Parse(string) (*api.Parameter, error)
+	Validate(*api.Parameter) error
+	Exec(*api.Parameter) (string, error)
+}
+
 type interactiveUseCase struct {
 	service service.InteractiveService
 }
 
-// NewInteractiveUseCase return UseCase instance
-func NewInteractiveUseCase(s service.InteractiveService) UseCase {
+// NewInteractiveUseCase return InteractiveUseCase instance
+func NewInteractiveUseCase(s service.InteractiveService) InteractiveUseCase {
 	return &interactiveUseCase{service: s}
 }
 
@@ -38,6 +45,6 @@ func (uc *interactiveUseCase) Validate(body *api.Parameter) error {
 }
 
 // Exec event
-func (uc *interactiveUseCase) Exec(body *api.Parameter) error {
+func (uc *interactiveUseCase) Exec(body *api.Parameter) (string, error) {
 	return uc.service.Exec(body)
 }

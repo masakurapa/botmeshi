@@ -9,12 +9,19 @@ import (
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
+// EventUseCase interface
+type EventUseCase interface {
+	Parse(string) (*api.Parameter, error)
+	Validate(*api.Parameter) error
+	Exec(*api.Parameter) error
+}
+
 type eventUseCase struct {
 	service service.EventService
 }
 
-// NewEventUseCase return UseCase instance
-func NewEventUseCase(s service.EventService) UseCase {
+// NewEventUseCase return EventUseCase instance
+func NewEventUseCase(s service.EventService) EventUseCase {
 	return &eventUseCase{service: s}
 }
 

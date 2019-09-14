@@ -14,17 +14,17 @@ import (
 
 type testInteractiveServiceMock struct {
 	service.InteractiveService
-	execMock func() error
+	execMock func() (string, error)
 }
 
-func (t *testInteractiveServiceMock) Exec(p *api.Parameter) error {
+func (t *testInteractiveServiceMock) Exec(p *api.Parameter) (string, error) {
 	return t.execMock()
 }
 
 func TestNewInteractiveUseCase(t *testing.T) {
 	func() {
 		s := NewInteractiveUseCase(&testInteractiveServiceMock{})
-		_, ok := s.(UseCase)
+		_, ok := s.(InteractiveUseCase)
 		assert.True(t, ok)
 	}()
 }
@@ -73,16 +73,18 @@ func TestInteractiveUseCase_Exec(t *testing.T) {
 
 	// 正常系
 	func(s testInteractiveServiceMock) {
-		s.execMock = func() error { return nil }
-		err := NewInteractiveUseCase(&s).Exec(&api.Parameter{})
+		s.execMock = func() (string, error) { return "success", nil }
+		actual, err := NewInteractiveUseCase(&s).Exec(&api.Parameter{})
 		assert.Nil(t, err)
+		assert.Equal(t, "success", actual)
 	}(s)
 
 	// 異常系
 	func(s testInteractiveServiceMock) {
-		s.execMock = func() error { return fmt.Errorf("exec error") }
-		err := NewInteractiveUseCase(&s).Exec(&api.Parameter{})
+		s.execMock = func() (string, error) { return "", fmt.Errorf("exec error") }
+		actual, err := NewInteractiveUseCase(&s).Exec(&api.Parameter{})
 		assert.NotNil(t, err)
 		assert.Equal(t, "exec error", err.Error())
+		assert.Equal(t, "", actual)
 	}(s)
 }

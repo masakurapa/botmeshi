@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	ext             = ".json"
-	defaultJSON     = "default" + ext
-	storageBasePath = ""
-	postID          = "menu"
+	ext                = ".json"
+	defaultJSON        = "default" + ext
+	storageBasePath    = ""
+	postEventMessageID = "menu"
 )
 
 var menus = []string{
@@ -68,7 +68,7 @@ func (s *eventService) interactive(p *api.Parameter, text string) error {
 	return s.notification.PostRichMessage(notification.Option{
 		Target:    p.ChannelID,
 		Message:   text + " で何が食べたい？",
-		MessageID: postID,
+		MessageID: postEventMessageID,
 		Color:     "#ff6633",
 		RichMessageOptions: []notification.RichMessageOption{
 			{

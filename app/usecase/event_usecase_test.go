@@ -24,7 +24,7 @@ func (t *testEventServiceMock) Exec(p *api.Parameter) error {
 func TestNewEventUseCase(t *testing.T) {
 	func() {
 		s := NewEventUseCase(&testEventServiceMock{})
-		_, ok := s.(UseCase)
+		_, ok := s.(EventUseCase)
 		assert.True(t, ok)
 	}()
 }
