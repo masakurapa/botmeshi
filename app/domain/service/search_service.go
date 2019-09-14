@@ -42,11 +42,16 @@ func NewSearchService(
 
 // SearchStation func
 func (s *searchService) SearchStation(q *search.Query) *search.Station {
-	return s.client.Station(q)
+	s.log.Start("SearchService", "SearchStation", q)
+	station := s.client.Station(q)
+	s.log.End("SearchService", "SearchStation")
+	return station
 }
 
 // SearchShops func
 func (s *searchService) SearchShops(q *search.Query, station *search.Station) []search.Shop {
+	s.log.Start("SearchService", "SearchShops", q, station)
+
 	var p search.SearchShopsQuery
 	if station == nil {
 		// 駅がないときはエリア名 + ジャンル名
@@ -62,11 +67,15 @@ func (s *searchService) SearchShops(q *search.Query, station *search.Station) []
 		return shops
 	}
 
-	return s.getShopURL(q, s.random(s.filterNearShops(station, shops)))
+	ret := s.getShopURL(q, s.random(s.filterNearShops(station, shops)))
+	s.log.End("SearchService", "SearchShops")
+	return ret
 }
 
 // NoticeSuccess func
 func (s *searchService) NoticeSuccess(r *search.Request, shops []search.Shop) error {
+	s.log.Start("SearchService", "NoticeSuccess", r, shops)
+
 	var opts []notification.SelectOption
 	text := "お店を見つけたよ！！\n```\n"
 
@@ -114,15 +123,20 @@ func (s *searchService) NoticeSuccess(r *search.Request, shops []search.Shop) er
 
 	// 店の情報は送信できているのでこっちの通知は失敗してもエラーにしない
 	s.notification.PostRichMessage(opt)
+	s.log.End("SearchService", "NoticeSuccess")
 	return nil
 }
 
 // NoticeError func
 func (s *searchService) NoticeError(r *search.Request, msg string) {
+	s.log.Start("SearchService", "NoticeError", r, msg)
+
 	s.notification.PostMessage(notification.Option{
 		Target:  r.Target,
 		Message: msg,
 	})
+
+	s.log.End("SearchService", "NoticeError")
 }
 
 // filterNearShops 駅近くの店だけにフィルタリング
@@ -166,6 +180,7 @@ func (s *searchService) getShopURL(q *search.Query, shops []search.Shop) []searc
 			Query: q.AreaName + " " + q.Genre + " " + shop.Name,
 		})
 		if ret == nil {
+			s.log.Info("Shop not found", shop)
 			continue
 		}
 		shops[i].URL = ret.URL

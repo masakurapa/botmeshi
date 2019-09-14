@@ -25,6 +25,8 @@ func NewInteractiveService(fnc repository.InvokeFunction, logger log.Logger) Int
 
 // Exec interactive event
 func (s *interactiveService) Exec(p *api.Parameter) (msg string, err error) {
+	s.log.Start("InteractiveService", "Exec", p)
+
 	switch p.Action.Name {
 	case notification.ActionNameCancel:
 		msg = "ばいびー"
@@ -44,5 +46,6 @@ func (s *interactiveService) Exec(p *api.Parameter) (msg string, err error) {
 		msg = "キサマ何者だ！"
 	}
 
+	s.log.End("InteractiveService", "Exec", msg)
 	return msg, err
 }

@@ -37,9 +37,12 @@ func NewEventService(n repository.Notification, logger log.Logger) EventService 
 
 // Exec func
 func (s *eventService) Exec(p *api.Parameter) error {
-	value := s.parse(p.Event.Text)
+	s.log.Start("EventService", "Exec", p)
 
+	value := s.parse(p.Event.Text)
 	if value == "" {
+		s.log.Error("Event text is required")
+
 		s.notification.PostMessage(notification.Option{
 			Target:  p.ChannelID,
 			Message: "探したい駅名を一緒に送って",
@@ -47,7 +50,9 @@ func (s *eventService) Exec(p *api.Parameter) error {
 		return nil
 	}
 
-	return s.interactive(p, value)
+	err := s.interactive(p, value)
+	s.log.End("EventService", "Exec")
+	return err
 }
 
 func (s *eventService) parse(text string) string {
