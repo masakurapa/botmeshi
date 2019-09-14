@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -27,20 +26,28 @@ func NewInvokeFunction(logger log.Logger) repository.InvokeFunction {
 }
 
 func (f *invokeFunction) Exec(p *search.Request) error {
+	f.log.Start("InvokeFunction", "Exec", p)
+
 	s, err := json.Marshal(p)
 	if err != nil {
-		return fmt.Errorf("json encode error")
+		f.log.Error("JSON parse error", err)
+		return err
 	}
 
-	_, err = f.client.Invoke(&lambda.InvokeInput{
+	params := lambda.InvokeInput{
 		FunctionName:   aws.String(util.InvokeLambdaArn()),
 		Payload:        []byte(s),
 		InvocationType: aws.String("Event"),
-	})
-
-	if err != nil {
-		return fmt.Errorf("invoke error")
 	}
 
+	f.log.Info("Lambda invoke parameters", params)
+	_, err = f.client.Invoke(&params)
+
+	if err != nil {
+		f.log.Error("Lambda invoke error", err)
+		return err
+	}
+
+	f.log.End("InvokeFunction", "Exec")
 	return nil
 }

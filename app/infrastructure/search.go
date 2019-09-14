@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
@@ -19,30 +20,37 @@ type searchClient struct {
 func NewSearchClient(logger log.Logger) (repository.Search, error) {
 	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
 	if err != nil {
-		return nil, err
+		logger.Error("GoogleMaps Client initialize error", err)
+		return nil, fmt.Errorf("search client initialize error")
 	}
 	return &searchClient{client: c, log: logger}, nil
 }
 
 // Station 駅検索
 func (c *searchClient) Station(q *search.Query) *search.Station {
+	c.log.Start("SearchClient", "Station", q)
+
 	r := &maps.FindPlaceFromTextRequest{
 		Input:     q.AreaName + "駅",
 		InputType: maps.FindPlaceFromTextInputTypeTextQuery,
 		Fields:    []maps.PlaceSearchFieldMask{"name", "geometry"},
 	}
 
+	c.log.Info("GoogleMaps FindPlaceFromText parameters", r)
 	resp, err := c.client.FindPlaceFromText(context.Background(), r)
 	if err != nil {
+		c.log.Error("FindPlaceFromText error", err)
 		return nil
 	}
 	if len(resp.Candidates) == 0 {
+		c.log.Info("Station not found")
 		return nil
 	}
 
 	// きっと先頭がその駅のハズだ
 	s := &resp.Candidates[0]
 
+	c.log.End("SearchClient", "Station")
 	return &search.Station{
 		Name: s.Name,
 		Location: search.Location{
@@ -52,12 +60,17 @@ func (c *searchClient) Station(q *search.Query) *search.Station {
 	}
 }
 
-func (c *searchClient) Shop(*search.SearchShopsQuery) *search.Shop {
+func (c *searchClient) Shop(q *search.SearchShopsQuery) *search.Shop {
+	c.log.Info("Start SearchClient.Shop()", q)
+	panic("実装されてなんだが？")
+	c.log.End("SearchClient", "Shop")
 	return &search.Shop{}
 }
 
 // Shops 検索ワードから店検索
 func (c *searchClient) Shops(q *search.SearchShopsQuery) []search.Shop {
+	c.log.Info("Start SearchClient.Shops()", q)
+
 	r := &maps.TextSearchRequest{
 		Query:    q.Query,
 		Region:   "jp",
@@ -73,8 +86,10 @@ func (c *searchClient) Shops(q *search.SearchShopsQuery) []search.Shop {
 		r.Radius = q.Radius
 	}
 
+	c.log.Info("GoogleMaps TextSearch parameters", r)
 	resp, err := c.client.TextSearch(context.Background(), r)
 	if err != nil {
+		c.log.Error("TextSearch error", err)
 		return nil
 	}
 
@@ -89,5 +104,6 @@ func (c *searchClient) Shops(q *search.SearchShopsQuery) []search.Shop {
 		})
 	}
 
+	c.log.End("SearchClient", "Shops")
 	return ret
 }
