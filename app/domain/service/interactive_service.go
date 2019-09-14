@@ -46,7 +46,3 @@ func (s *interactiveService) Exec(p *api.Parameter) (msg string, err error) {
 
 	return msg, err
 }
-
-func (s *interactiveService) invoke() {
-
-}

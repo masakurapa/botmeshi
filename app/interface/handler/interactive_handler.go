@@ -26,6 +26,8 @@ func (h *interactiveHandler) Handler(req http.Request) (http.Response, error) {
 		return http.NewResponse(http.StatusOK, err.Error()), nil
 	}
 
+	h.log.Info("Parsed parameters: %+v", p)
+
 	if err = h.uc.Validate(p); err != nil {
 		h.log.Error("Validate error: %s", err.Error())
 		return http.NewResponse(http.StatusOK, err.Error()), nil
