@@ -9,6 +9,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/masakurapa/botmeshi/app/domain/service"
+	"github.com/masakurapa/botmeshi/test/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +24,7 @@ func (t *testInfokeFunctionMock) Exec(p *search.Request) error {
 
 func TestNewInteractiveService(t *testing.T) {
 	func() {
-		s := service.NewInteractiveService(&testInfokeFunctionMock{}, &loggerMock{})
+		s := service.NewInteractiveService(&testInfokeFunctionMock{}, mock.Logger())
 		_, ok := s.(service.InteractiveService)
 		assert.True(t, ok)
 	}()
@@ -38,7 +39,7 @@ func TestInvokeService_Exec(t *testing.T) {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            notification.ActionNameCancel,
@@ -55,7 +56,7 @@ func TestInvokeService_Exec(t *testing.T) {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            notification.ActionNameGo,
@@ -72,7 +73,7 @@ func TestInvokeService_Exec(t *testing.T) {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            notification.ActionNameDoNotGo,
@@ -90,7 +91,7 @@ func TestInvokeService_Exec(t *testing.T) {
 			assert.Equal(t, "fuga", p.Query)
 			return nil
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            notification.ActionNameSelect,
@@ -106,7 +107,7 @@ func TestInvokeService_Exec(t *testing.T) {
 		fnc.execMock = func(p *search.Request) error {
 			return fmt.Errorf("exec error")
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            notification.ActionNameSelect,
@@ -124,7 +125,7 @@ func TestInvokeService_Exec(t *testing.T) {
 			assert.Fail(t, "呼ばれないはず")
 			return nil
 		}
-		s, err := service.NewInteractiveService(&fnc, &loggerMock{}).Exec(&api.Parameter{
+		s, err := service.NewInteractiveService(&fnc, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Action: api.ActionParameter{
 				Name:            "hoge",

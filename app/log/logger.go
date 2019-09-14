@@ -4,6 +4,8 @@ import "fmt"
 
 // Logger struct
 type Logger interface {
+	Start(string, string, ...interface{})
+	End(string, string, ...interface{})
 	Info(string, ...interface{})
 	Error(string, ...interface{})
 }
@@ -16,16 +18,38 @@ func NewLogger() Logger {
 	return &logger{}
 }
 
+// Start func log
+func (l *logger) Start(cls, fnc string, args ...interface{}) {
+	l.Info("Start "+cls+"."+fnc+"() parameters: "+l.verb(args), args...)
+}
+
+// End func log
+func (l *logger) End(cls, fnc string, args ...interface{}) {
+	l.Info("End "+cls+"."+fnc+"() returns: "+l.verb(args), args...)
+}
+
 // Info log
-func (l *logger) Info(format string, arg ...interface{}) {
-	l.log("INFO", format, arg...)
+func (l *logger) Info(msg string, args ...interface{}) {
+	l.log("INFO", msg, args...)
 }
 
 // Error log
-func (l *logger) Error(format string, arg ...interface{}) {
-	l.log("ERROR", format, arg...)
+func (l *logger) Error(msg string, args ...interface{}) {
+	l.log("ERROR", msg, args...)
 }
 
-func (*logger) log(level, format string, arg ...interface{}) {
-	fmt.Printf("["+level+"]"+format+"\n", arg...)
+func (l *logger) log(level, msg string, args ...interface{}) {
+	format := "[" + level + "]" + msg + ". "
+	fmt.Printf(format+l.verb(args), args...)
+}
+
+func (*logger) verb(args ...interface{}) string {
+	verb := ""
+	for i := 0; i < len(args); i++ {
+		if i > 0 {
+			verb += ", "
+		}
+		verb += "%#v"
+	}
+	return verb
 }

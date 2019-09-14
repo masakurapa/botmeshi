@@ -8,6 +8,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/masakurapa/botmeshi/app/domain/service"
+	"github.com/masakurapa/botmeshi/test/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +28,7 @@ func (t *testNotificationMock) PostRichMessage(opt notification.Option) error {
 
 func TestNewEventService(t *testing.T) {
 	func() {
-		s := service.NewEventService(&testNotificationMock{}, &loggerMock{})
+		s := service.NewEventService(&testNotificationMock{}, mock.Logger())
 		_, ok := s.(service.EventService)
 		assert.True(t, ok)
 	}()
@@ -49,7 +50,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: "",
@@ -70,7 +71,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text,
@@ -114,7 +115,7 @@ func TestEventService_Exec(t *testing.T) {
 			return nil
 		}
 
-		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",
@@ -133,7 +134,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, mock.Logger()).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",

@@ -8,6 +8,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/http"
 	"github.com/masakurapa/botmeshi/app/interface/handler"
 	"github.com/masakurapa/botmeshi/app/usecase"
+	"github.com/masakurapa/botmeshi/test/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,7 @@ func (t *testInteractiveUseCaseMock) Exec(_ *api.Parameter) (string, error) {
 
 func TestNewInteractiveHandler(t *testing.T) {
 	func() {
-		s := handler.NewInteractiveHandler(&testInteractiveUseCaseMock{}, &loggerMock{})
+		s := handler.NewInteractiveHandler(&testInteractiveUseCaseMock{}, mock.Logger())
 		_, ok := s.(handler.Handler)
 		assert.True(t, ok)
 	}()
@@ -45,7 +46,7 @@ func TestInteractiveHandler(t *testing.T) {
 
 	// 正常系
 	func(uc testInteractiveUseCaseMock) {
-		res, err := handler.NewInteractiveHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewInteractiveHandler(&uc, mock.Logger()).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "exec success", res.Body)
@@ -56,7 +57,7 @@ func TestInteractiveHandler(t *testing.T) {
 	func(uc testInteractiveUseCaseMock) {
 		uc.parseMock = func(body string) (*api.Parameter, error) { return nil, fmt.Errorf("parse error") }
 
-		res, err := handler.NewInteractiveHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewInteractiveHandler(&uc, mock.Logger()).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "parse error", res.Body)
@@ -67,7 +68,7 @@ func TestInteractiveHandler(t *testing.T) {
 	func(uc testInteractiveUseCaseMock) {
 		uc.validateMock = func() error { return fmt.Errorf("validate error") }
 
-		res, err := handler.NewInteractiveHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewInteractiveHandler(&uc, mock.Logger()).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "validate error", res.Body)
@@ -78,7 +79,7 @@ func TestInteractiveHandler(t *testing.T) {
 	func(uc testInteractiveUseCaseMock) {
 		uc.execMock = func() (string, error) { return "exec success", fmt.Errorf("exec error") }
 
-		res, err := handler.NewInteractiveHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewInteractiveHandler(&uc, mock.Logger()).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "exec error", res.Body)

@@ -7,6 +7,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/interface/handler"
 	"github.com/masakurapa/botmeshi/app/usecase"
+	"github.com/masakurapa/botmeshi/test/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +26,7 @@ func (t *testSearchUseCaseMock) Exec(p *search.Request) error {
 
 func TestNewSearchHandler(t *testing.T) {
 	func() {
-		s := handler.NewSearchHandler(&testSearchUseCaseMock{}, &loggerMock{})
+		s := handler.NewSearchHandler(&testSearchUseCaseMock{}, mock.Logger())
 		_, ok := s.(handler.SearchHandler)
 		assert.True(t, ok)
 	}()
@@ -40,7 +41,7 @@ func TestSearchHandler(t *testing.T) {
 		uc.validateMock = func() error { return nil }
 		uc.execMock = func() error { return nil }
 
-		msg, err := handler.NewSearchHandler(&uc, &loggerMock{}).Handler(p)
+		msg, err := handler.NewSearchHandler(&uc, mock.Logger()).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "Success Search", msg)
 	}(uc)
@@ -48,7 +49,7 @@ func TestSearchHandler(t *testing.T) {
 	// バリデーションエラー
 	func(uc testSearchUseCaseMock) {
 		uc.validateMock = func() error { return fmt.Errorf("validate error") }
-		msg, err := handler.NewSearchHandler(&uc, &loggerMock{}).Handler(p)
+		msg, err := handler.NewSearchHandler(&uc, mock.Logger()).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "validate error", msg)
 	}(uc)
@@ -57,7 +58,7 @@ func TestSearchHandler(t *testing.T) {
 	func(uc testSearchUseCaseMock) {
 		uc.validateMock = func() error { return nil }
 		uc.execMock = func() error { return fmt.Errorf("exec error") }
-		msg, err := handler.NewSearchHandler(&uc, &loggerMock{}).Handler(p)
+		msg, err := handler.NewSearchHandler(&uc, mock.Logger()).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "exec error", msg)
 	}(uc)

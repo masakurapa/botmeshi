@@ -7,6 +7,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/service"
 	"github.com/masakurapa/botmeshi/app/usecase"
+	"github.com/masakurapa/botmeshi/test/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +34,7 @@ func (t *testSearchServiceMock) NoticeError(p *search.Request, s string) {
 
 func TestNewSearchUseCase(t *testing.T) {
 	func() {
-		s := usecase.NewSearchUseCase(&testSearchServiceMock{}, &loggerMock{})
+		s := usecase.NewSearchUseCase(&testSearchServiceMock{}, mock.Logger())
 		_, ok := s.(usecase.SearchUseCase)
 		assert.True(t, ok)
 	}()
@@ -44,7 +45,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// 正常系
 	func() {
-		err := usecase.NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
+		err := usecase.NewSearchUseCase(s, mock.Logger()).Validate(&search.Request{
 			Target: "hoge",
 			Query:  "fuga",
 		})
@@ -53,7 +54,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// Target空
 	func() {
-		err := usecase.NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
+		err := usecase.NewSearchUseCase(s, mock.Logger()).Validate(&search.Request{
 			Target: "",
 			Query:  "fuga",
 		})
@@ -63,7 +64,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// Query空
 	func() {
-		err := usecase.NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
+		err := usecase.NewSearchUseCase(s, mock.Logger()).Validate(&search.Request{
 			Target: "hoge",
 			Query:  "",
 		})
@@ -82,7 +83,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		s.noticeSuccessMock = func(*search.Request, []search.Shop) error { return nil }
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := usecase.NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
+		err := usecase.NewSearchUseCase(&s, mock.Logger()).Exec(&search.Request{
 			Query: "hoge fuga",
 		})
 		assert.Nil(t, err)
@@ -95,7 +96,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		s.noticeSuccessMock = func(*search.Request, []search.Shop) error { return nil }
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := usecase.NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
+		err := usecase.NewSearchUseCase(&s, mock.Logger()).Exec(&search.Request{
 			Query: "hoge fuga hoga",
 		})
 		assert.Nil(t, err)
@@ -117,7 +118,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		}
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := usecase.NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
+		err := usecase.NewSearchUseCase(&s, mock.Logger()).Exec(&search.Request{
 			Query: "hoge",
 		})
 		assert.NotNil(t, err)
@@ -139,7 +140,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 			assert.Equal(t, request, p)
 		}
 
-		err := usecase.NewSearchUseCase(&s, &loggerMock{}).Exec(request)
+		err := usecase.NewSearchUseCase(&s, mock.Logger()).Exec(request)
 		assert.NotNil(t, err)
 		assert.Equal(t, "shop not found", err.Error())
 	}(s)
@@ -156,7 +157,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 			assert.Equal(t, request, p)
 		}
 
-		err := usecase.NewSearchUseCase(&s, &loggerMock{}).Exec(request)
+		err := usecase.NewSearchUseCase(&s, mock.Logger()).Exec(request)
 		assert.NotNil(t, err)
 		assert.Equal(t, "notice error", err.Error())
 	}(s)
