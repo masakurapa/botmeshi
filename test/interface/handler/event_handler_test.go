@@ -6,6 +6,7 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/model/http"
+	"github.com/masakurapa/botmeshi/app/interface/handler"
 	"github.com/masakurapa/botmeshi/app/usecase"
 	"github.com/stretchr/testify/assert"
 )
@@ -29,8 +30,8 @@ func (t *testEventUseCaseMock) Exec(_ *api.Parameter) error {
 
 func TestNewEventHandler(t *testing.T) {
 	func() {
-		s := NewEventHandler(&testEventUseCaseMock{}, &loggerMock{})
-		_, ok := s.(Handler)
+		s := handler.NewEventHandler(&testEventUseCaseMock{}, &loggerMock{})
+		_, ok := s.(handler.Handler)
 		assert.True(t, ok)
 	}()
 }
@@ -44,7 +45,7 @@ func TestEventHandler(t *testing.T) {
 
 	// 正常系
 	func(uc testEventUseCaseMock) {
-		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "Success Event", res.Body)
@@ -55,7 +56,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.parseMock = func(body string) (*api.Parameter, error) { return nil, fmt.Errorf("parse error") }
 
-		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "parse error", res.Body)
@@ -66,7 +67,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.validateMock = func() error { return fmt.Errorf("validate error") }
 
-		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "validate error", res.Body)
@@ -77,7 +78,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.execMock = func() error { return fmt.Errorf("exec error") }
 
-		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
+		res, err := handler.NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "exec error", res.Body)

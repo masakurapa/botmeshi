@@ -3,11 +3,12 @@ package http
 import (
 	"testing"
 
+	"github.com/masakurapa/botmeshi/app/domain/model/http"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewResponse(t *testing.T) {
-	res := NewResponse(200, "body")
+	res := http.NewResponse(200, "body")
 
 	assert.Equal(t, 200, res.StatusCode)
 	assert.Equal(t, "body", res.Body)

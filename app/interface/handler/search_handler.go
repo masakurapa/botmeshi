@@ -18,7 +18,7 @@ func NewSearchHandler(uc usecase.SearchUseCase, logger log.Logger) SearchHandler
 
 // Handler function
 func (h *searchHandler) Handler(req search.Request) (string, error) {
-	h.log.Info("Start SearchHandler: %v", req)
+	h.log.Info("Start SearchHandler: %+v", req)
 
 	if err := h.uc.Validate(&req); err != nil {
 		h.log.Error("Validate error: %s", err.Error())

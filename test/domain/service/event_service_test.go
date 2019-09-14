@@ -7,6 +7,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/domain/service"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,8 +27,8 @@ func (t *testNotificationMock) PostRichMessage(opt notification.Option) error {
 
 func TestNewEventService(t *testing.T) {
 	func() {
-		s := NewEventService(&testNotificationMock{}, &loggerMock{})
-		_, ok := s.(EventService)
+		s := service.NewEventService(&testNotificationMock{}, &loggerMock{})
+		_, ok := s.(service.EventService)
 		assert.True(t, ok)
 	}()
 }
@@ -48,7 +49,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: "",
@@ -69,7 +70,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text,
@@ -87,7 +88,7 @@ func TestEventService_Exec(t *testing.T) {
 		n.postRichMessageMock = func(opt notification.Option) error {
 			assert.Equal(t, "12345", opt.Target)
 			assert.Equal(t, "hoge で何が食べたい？", opt.Message)
-			assert.Equal(t, postEventMessageID, opt.MessageID)
+			assert.Equal(t, "menu", opt.MessageID)
 			assert.Equal(t, "#ff6633", opt.Color)
 			assert.Equal(t, []notification.RichMessageOption{
 				{
@@ -113,7 +114,7 @@ func TestEventService_Exec(t *testing.T) {
 			return nil
 		}
 
-		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",
@@ -132,7 +133,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
+		err := service.NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",

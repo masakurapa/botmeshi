@@ -1,8 +1,6 @@
 package service
 
 import (
-	"math/rand"
-
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
@@ -17,8 +15,6 @@ const (
 	postSearchMessageID      = "shop"
 )
 
-var randInt = rand.Intn
-
 // SearchService interface
 type SearchService interface {
 	SearchStation(*search.Query) *search.Station
@@ -30,12 +26,18 @@ type SearchService interface {
 type searchService struct {
 	client       repository.Search
 	notification repository.Notification
+	rand         repository.Randomizer
 	log          log.Logger
 }
 
 // NewSearchService returns SearchService instance
-func NewSearchService(s repository.Search, n repository.Notification, logger log.Logger) SearchService {
-	return &searchService{client: s, notification: n, log: logger}
+func NewSearchService(
+	s repository.Search,
+	n repository.Notification,
+	rand repository.Randomizer,
+	logger log.Logger,
+) SearchService {
+	return &searchService{client: s, notification: n, rand: rand, log: logger}
 }
 
 // SearchStation func
@@ -151,7 +153,7 @@ func (s *searchService) random(shops []search.Shop) []search.Shop {
 
 	n := len(shops)
 	for i := n - 1; i >= 0; i-- {
-		j := randInt(i + 1)
+		j := s.rand.Intn(i + 1)
 		shops[i], shops[j] = shops[j], shops[i]
 	}
 	return shops[:shopMax]
