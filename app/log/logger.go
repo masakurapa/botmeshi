@@ -40,7 +40,12 @@ func (l *logger) Error(msg string, args ...interface{}) {
 
 func (l *logger) log(level, msg string, args ...interface{}) {
 	format := "[" + level + "]" + msg + ". "
-	fmt.Printf(format+l.verb(args)+"\n", args...)
+
+	if len(args) == 0 {
+		fmt.Println(format)
+	} else {
+		fmt.Printf(format+l.verb(args)+"\n", args...)
+	}
 }
 
 func (*logger) verb(args ...interface{}) string {
