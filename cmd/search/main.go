@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	search, err := infrastructure.NewSearchClient()
+	logger := log.NewLogger()
+
+	search, err := infrastructure.NewSearchClient(logger)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	logger := log.NewLogger()
 
 	notification := infrastructure.NewNotificationClient(logger)
 	service := service.NewSearchService(search, notification, logger)
