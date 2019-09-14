@@ -24,7 +24,7 @@ func (t *testSearchUseCaseMock) Exec(p *search.Request) error {
 
 func TestNewSearchHandler(t *testing.T) {
 	func() {
-		s := NewSearchHandler(&testSearchUseCaseMock{})
+		s := NewSearchHandler(&testSearchUseCaseMock{}, &loggerMock{})
 		_, ok := s.(SearchHandler)
 		assert.True(t, ok)
 	}()
@@ -39,7 +39,7 @@ func TestSearchHandler(t *testing.T) {
 		uc.validateMock = func() error { return nil }
 		uc.execMock = func() error { return nil }
 
-		msg, err := NewSearchHandler(&uc).Handler(p)
+		msg, err := NewSearchHandler(&uc, &loggerMock{}).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "Success Search", msg)
 	}(uc)
@@ -47,7 +47,7 @@ func TestSearchHandler(t *testing.T) {
 	// バリデーションエラー
 	func(uc testSearchUseCaseMock) {
 		uc.validateMock = func() error { return fmt.Errorf("validate error") }
-		msg, err := NewSearchHandler(&uc).Handler(p)
+		msg, err := NewSearchHandler(&uc, &loggerMock{}).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "validate error", msg)
 	}(uc)
@@ -56,7 +56,7 @@ func TestSearchHandler(t *testing.T) {
 	func(uc testSearchUseCaseMock) {
 		uc.validateMock = func() error { return nil }
 		uc.execMock = func() error { return fmt.Errorf("exec error") }
-		msg, err := NewSearchHandler(&uc).Handler(p)
+		msg, err := NewSearchHandler(&uc, &loggerMock{}).Handler(p)
 		assert.Nil(t, err)
 		assert.Equal(t, "exec error", msg)
 	}(uc)

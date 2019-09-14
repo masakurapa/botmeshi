@@ -29,7 +29,7 @@ func (t *testEventUseCaseMock) Exec(_ *api.Parameter) error {
 
 func TestNewEventHandler(t *testing.T) {
 	func() {
-		s := NewEventHandler(&testEventUseCaseMock{})
+		s := NewEventHandler(&testEventUseCaseMock{}, &loggerMock{})
 		_, ok := s.(Handler)
 		assert.True(t, ok)
 	}()
@@ -44,7 +44,7 @@ func TestEventHandler(t *testing.T) {
 
 	// 正常系
 	func(uc testEventUseCaseMock) {
-		res, err := NewEventHandler(&uc).Handler(http.Request{})
+		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "Success Event", res.Body)
@@ -55,7 +55,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.parseMock = func(body string) (*api.Parameter, error) { return nil, fmt.Errorf("parse error") }
 
-		res, err := NewEventHandler(&uc).Handler(http.Request{})
+		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "parse error", res.Body)
@@ -66,7 +66,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.validateMock = func() error { return fmt.Errorf("validate error") }
 
-		res, err := NewEventHandler(&uc).Handler(http.Request{})
+		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "validate error", res.Body)
@@ -77,7 +77,7 @@ func TestEventHandler(t *testing.T) {
 	func(uc testEventUseCaseMock) {
 		uc.execMock = func() error { return fmt.Errorf("exec error") }
 
-		res, err := NewEventHandler(&uc).Handler(http.Request{})
+		res, err := NewEventHandler(&uc, &loggerMock{}).Handler(http.Request{})
 		if assert.Nil(t, err) {
 			assert.Equal(t, 200, res.StatusCode)
 			assert.Equal(t, "exec error", res.Body)

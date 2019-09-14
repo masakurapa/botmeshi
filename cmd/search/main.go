@@ -5,6 +5,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/service"
 	"github.com/masakurapa/botmeshi/app/infrastructure"
 	"github.com/masakurapa/botmeshi/app/interface/handler"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/usecase"
 )
 
@@ -14,8 +15,10 @@ func main() {
 		panic(err.Error())
 	}
 
-	notification := infrastructure.NewNotificationClient()
-	service := service.NewSearchService(search, notification)
-	uc := usecase.NewSearchUseCase(service)
-	lambda.Start(handler.NewSearchHandler(uc).Handler)
+	logger := log.NewLogger()
+
+	notification := infrastructure.NewNotificationClient(logger)
+	service := service.NewSearchService(search, notification, logger)
+	uc := usecase.NewSearchUseCase(service, logger)
+	lambda.Start(handler.NewSearchHandler(uc, logger).Handler)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/service"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
@@ -18,11 +19,12 @@ type EventUseCase interface {
 
 type eventUseCase struct {
 	service service.EventService
+	log     log.Logger
 }
 
 // NewEventUseCase return EventUseCase instance
-func NewEventUseCase(s service.EventService) EventUseCase {
-	return &eventUseCase{service: s}
+func NewEventUseCase(s service.EventService, logger log.Logger) EventUseCase {
+	return &eventUseCase{service: s, log: logger}
 }
 
 // Parse request

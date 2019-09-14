@@ -9,17 +9,20 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
 type invokeFunction struct {
 	client *lambda.Lambda
+	log    log.Logger
 }
 
 // NewInvokeFunction returns invokeFunction instance
-func NewInvokeFunction() repository.InvokeFunction {
+func NewInvokeFunction(logger log.Logger) repository.InvokeFunction {
 	return &invokeFunction{
 		client: lambda.New(session.New()),
+		log:    logger,
 	}
 }
 

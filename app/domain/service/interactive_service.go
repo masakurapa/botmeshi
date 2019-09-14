@@ -5,6 +5,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 )
 
 // InteractiveService interface
@@ -14,13 +15,12 @@ type InteractiveService interface {
 
 type interactiveService struct {
 	fnc repository.InvokeFunction
+	log log.Logger
 }
 
 // NewInteractiveService returns InteractiveService instance
-func NewInteractiveService(fnc repository.InvokeFunction) InteractiveService {
-	return &interactiveService{
-		fnc: fnc,
-	}
+func NewInteractiveService(fnc repository.InvokeFunction, logger log.Logger) InteractiveService {
+	return &interactiveService{fnc: fnc, log: logger}
 }
 
 // Exec interactive event

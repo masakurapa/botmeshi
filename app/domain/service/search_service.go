@@ -6,6 +6,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
@@ -29,14 +30,12 @@ type SearchService interface {
 type searchService struct {
 	client       repository.Search
 	notification repository.Notification
+	log          log.Logger
 }
 
 // NewSearchService returns SearchService instance
-func NewSearchService(s repository.Search, n repository.Notification) SearchService {
-	return &searchService{
-		client:       s,
-		notification: n,
-	}
+func NewSearchService(s repository.Search, n repository.Notification, logger log.Logger) SearchService {
+	return &searchService{client: s, notification: n, log: logger}
 }
 
 // SearchStation func

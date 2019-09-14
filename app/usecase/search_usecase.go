@@ -6,6 +6,7 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/service"
+	"github.com/masakurapa/botmeshi/app/log"
 )
 
 const (
@@ -21,11 +22,12 @@ type SearchUseCase interface {
 
 type searchUseCase struct {
 	service service.SearchService
+	log     log.Logger
 }
 
 // NewSearchUseCase return SearchUseCase instance
-func NewSearchUseCase(s service.SearchService) SearchUseCase {
-	return &searchUseCase{service: s}
+func NewSearchUseCase(s service.SearchService, logger log.Logger) SearchUseCase {
+	return &searchUseCase{service: s, log: logger}
 }
 
 func (uc *searchUseCase) Validate(p *search.Request) error {

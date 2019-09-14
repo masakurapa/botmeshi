@@ -6,6 +6,7 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/service"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 )
 
@@ -18,11 +19,12 @@ type InteractiveUseCase interface {
 
 type interactiveUseCase struct {
 	service service.InteractiveService
+	log     log.Logger
 }
 
 // NewInteractiveUseCase return InteractiveUseCase instance
-func NewInteractiveUseCase(s service.InteractiveService) InteractiveUseCase {
-	return &interactiveUseCase{service: s}
+func NewInteractiveUseCase(s service.InteractiveService, logger log.Logger) InteractiveUseCase {
+	return &interactiveUseCase{service: s, log: logger}
 }
 
 // Parse request

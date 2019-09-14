@@ -6,6 +6,7 @@ import (
 	"github.com/masakurapa/botmeshi/app/domain/model/api"
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 )
 
 const (
@@ -26,11 +27,12 @@ type EventService interface {
 
 type eventService struct {
 	notification repository.Notification
+	log          log.Logger
 }
 
 // NewEventService returns EventService instance
-func NewEventService(n repository.Notification) EventService {
-	return &eventService{notification: n}
+func NewEventService(n repository.Notification, logger log.Logger) EventService {
+	return &eventService{notification: n, log: logger}
 }
 
 // Exec func

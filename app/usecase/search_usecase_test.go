@@ -32,7 +32,7 @@ func (t *testSearchServiceMock) NoticeError(p *search.Request, s string) {
 
 func TestNewSearchUseCase(t *testing.T) {
 	func() {
-		s := NewSearchUseCase(&testSearchServiceMock{})
+		s := NewSearchUseCase(&testSearchServiceMock{}, &loggerMock{})
 		_, ok := s.(SearchUseCase)
 		assert.True(t, ok)
 	}()
@@ -43,7 +43,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// 正常系
 	func() {
-		err := NewSearchUseCase(s).Validate(&search.Request{
+		err := NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
 			Target: "hoge",
 			Query:  "fuga",
 		})
@@ -52,7 +52,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// Target空
 	func() {
-		err := NewSearchUseCase(s).Validate(&search.Request{
+		err := NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
 			Target: "",
 			Query:  "fuga",
 		})
@@ -62,7 +62,7 @@ func TestSearchUseCase_Validate(t *testing.T) {
 
 	// Query空
 	func() {
-		err := NewSearchUseCase(s).Validate(&search.Request{
+		err := NewSearchUseCase(s, &loggerMock{}).Validate(&search.Request{
 			Target: "hoge",
 			Query:  "",
 		})
@@ -81,7 +81,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		s.noticeSuccessMock = func(*search.Request, []search.Shop) error { return nil }
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := NewSearchUseCase(&s).Exec(&search.Request{
+		err := NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
 			Query: "hoge fuga",
 		})
 		assert.Nil(t, err)
@@ -94,7 +94,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		s.noticeSuccessMock = func(*search.Request, []search.Shop) error { return nil }
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := NewSearchUseCase(&s).Exec(&search.Request{
+		err := NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
 			Query: "hoge fuga hoga",
 		})
 		assert.Nil(t, err)
@@ -116,7 +116,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 		}
 		s.noticeErrorMock = func(*search.Request, string) { assert.Fail(t, "呼ばれないはず") }
 
-		err := NewSearchUseCase(&s).Exec(&search.Request{
+		err := NewSearchUseCase(&s, &loggerMock{}).Exec(&search.Request{
 			Query: "hoge",
 		})
 		assert.NotNil(t, err)
@@ -138,7 +138,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 			assert.Equal(t, request, p)
 		}
 
-		err := NewSearchUseCase(&s).Exec(request)
+		err := NewSearchUseCase(&s, &loggerMock{}).Exec(request)
 		assert.NotNil(t, err)
 		assert.Equal(t, "shop not found", err.Error())
 	}(s)
@@ -155,7 +155,7 @@ func TestSearchUseCase_Exec(t *testing.T) {
 			assert.Equal(t, request, p)
 		}
 
-		err := NewSearchUseCase(&s).Exec(request)
+		err := NewSearchUseCase(&s, &loggerMock{}).Exec(request)
 		assert.NotNil(t, err)
 		assert.Equal(t, "notice error", err.Error())
 	}(s)

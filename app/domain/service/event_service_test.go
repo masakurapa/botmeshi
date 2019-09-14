@@ -26,7 +26,7 @@ func (t *testNotificationMock) PostRichMessage(opt notification.Option) error {
 
 func TestNewEventService(t *testing.T) {
 	func() {
-		s := NewEventService(&testNotificationMock{})
+		s := NewEventService(&testNotificationMock{}, &loggerMock{})
 		_, ok := s.(EventService)
 		assert.True(t, ok)
 	}()
@@ -48,7 +48,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n).Exec(&api.Parameter{
+		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: "",
@@ -69,7 +69,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n).Exec(&api.Parameter{
+		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text,
@@ -113,7 +113,7 @@ func TestEventService_Exec(t *testing.T) {
 			return nil
 		}
 
-		err := NewEventService(&n).Exec(&api.Parameter{
+		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",
@@ -132,7 +132,7 @@ func TestEventService_Exec(t *testing.T) {
 			return fmt.Errorf("post rich message error")
 		}
 
-		err := NewEventService(&n).Exec(&api.Parameter{
+		err := NewEventService(&n, &loggerMock{}).Exec(&api.Parameter{
 			ChannelID: "12345",
 			Event: api.EventParameter{
 				Text: text + "hoge",

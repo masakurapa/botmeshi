@@ -3,18 +3,21 @@ package infrastructure
 import (
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 	"github.com/nlopes/slack"
 )
 
 type notificationClient struct {
 	client *slack.Client
+	log    log.Logger
 }
 
 // NewNotificationClient returns Notification instance
-func NewNotificationClient() repository.Notification {
+func NewNotificationClient(logger log.Logger) repository.Notification {
 	return &notificationClient{
 		client: slack.New(util.BotAccessToken()),
+		log:    logger,
 	}
 }
 

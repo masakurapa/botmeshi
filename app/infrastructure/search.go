@@ -5,21 +5,23 @@ import (
 
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
+	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
 	"googlemaps.github.io/maps"
 )
 
 type searchClient struct {
 	client *maps.Client
+	log    log.Logger
 }
 
 // NewSearchClient returns MapSearch instance
-func NewSearchClient() (repository.Search, error) {
+func NewSearchClient(logger log.Logger) (repository.Search, error) {
 	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
 	if err != nil {
 		return nil, err
 	}
-	return &searchClient{client: c}, nil
+	return &searchClient{client: c, log: logger}, nil
 }
 
 // Station 駅検索

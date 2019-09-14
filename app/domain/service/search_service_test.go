@@ -42,7 +42,7 @@ func (t *testSearchNotificationMock) PostRichMessage(o notification.Option) erro
 
 func TestNewSearchService(t *testing.T) {
 	func() {
-		s := NewSearchService(&testSearchMock{}, &testSearchNotificationMock{})
+		s := NewSearchService(&testSearchMock{}, &testSearchNotificationMock{}, &loggerMock{})
 		_, ok := s.(SearchService)
 		assert.True(t, ok)
 	}()
@@ -59,7 +59,7 @@ func TestSearchService_SearchStation(t *testing.T) {
 			assert.Equal(t, "ラーメン", q.Genre)
 			return expect
 		}
-		actual := NewSearchService(&s, n).SearchStation(&search.Query{
+		actual := NewSearchService(&s, n, &loggerMock{}).SearchStation(&search.Query{
 			AreaName: "東京",
 			Genre:    "ラーメン",
 		})
@@ -70,7 +70,7 @@ func TestSearchService_SearchStation(t *testing.T) {
 	func(s testSearchMock) {
 		s.stationMock = func(*search.Query) *search.Station { return nil }
 
-		actual := NewSearchService(&s, n).SearchStation(&search.Query{})
+		actual := NewSearchService(&s, n, &loggerMock{}).SearchStation(&search.Query{})
 		assert.Nil(t, actual)
 	}(s)
 }
@@ -127,7 +127,7 @@ func TestSearchService_SearchShops(t *testing.T) {
 			return n
 		}
 
-		actual := NewSearchService(&s, n).SearchShops(&search.Query{
+		actual := NewSearchService(&s, n, &loggerMock{}).SearchShops(&search.Query{
 			AreaName: "東京",
 			Genre:    "ラーメン",
 		}, station)
@@ -188,7 +188,7 @@ func TestSearchService_SearchShops(t *testing.T) {
 			return n
 		}
 
-		actual := NewSearchService(&s, n).SearchShops(&search.Query{
+		actual := NewSearchService(&s, n, &loggerMock{}).SearchShops(&search.Query{
 			AreaName: "東京",
 			Genre:    "ラーメン",
 		}, nil)
@@ -226,7 +226,7 @@ func TestSearchService_SearchShops(t *testing.T) {
 	func(s testSearchMock) {
 		expect := []search.Shop{}
 		s.shopsMock = func(*search.SearchShopsQuery) []search.Shop { return expect }
-		actual := NewSearchService(&s, n).SearchShops(&search.Query{}, nil)
+		actual := NewSearchService(&s, n, &loggerMock{}).SearchShops(&search.Query{}, nil)
 		assert.Equal(t, expect, actual)
 	}(s)
 }
@@ -276,7 +276,7 @@ func TestSearchService_NoticeSuccess(t *testing.T) {
 			return nil
 		}
 
-		err := NewSearchService(s, &n).NoticeSuccess(&search.Request{
+		err := NewSearchService(s, &n, &loggerMock{}).NoticeSuccess(&search.Request{
 			Target: "12345",
 		}, shops)
 		assert.Nil(t, err)
@@ -286,7 +286,7 @@ func TestSearchService_NoticeSuccess(t *testing.T) {
 	func(n testSearchNotificationMock) {
 		n.postMessageMock = func(o notification.Option) error { return fmt.Errorf("post message error") }
 
-		err := NewSearchService(s, &n).NoticeSuccess(&search.Request{
+		err := NewSearchService(s, &n, &loggerMock{}).NoticeSuccess(&search.Request{
 			Target: "12345",
 		}, shops)
 		assert.NotNil(t, err)
@@ -298,7 +298,7 @@ func TestSearchService_NoticeSuccess(t *testing.T) {
 		n.postMessageMock = func(o notification.Option) error { return nil }
 		n.postRichMessageMock = func(o notification.Option) error { return fmt.Errorf("post rich message error") }
 
-		err := NewSearchService(s, &n).NoticeSuccess(&search.Request{
+		err := NewSearchService(s, &n, &loggerMock{}).NoticeSuccess(&search.Request{
 			Target: "12345",
 		}, shops)
 		assert.Nil(t, err)
@@ -316,7 +316,7 @@ func TestSearchService_NoticeError(t *testing.T) {
 			return nil
 		}
 
-		NewSearchService(s, &n).NoticeError(&search.Request{
+		NewSearchService(s, &n, &loggerMock{}).NoticeError(&search.Request{
 			Target: "12345",
 		}, "エラー")
 	}()
