@@ -20,12 +20,12 @@ func NewLogger() Logger {
 
 // Start func log
 func (l *logger) Start(cls, fnc string, args ...interface{}) {
-	l.Info("Start "+cls+"."+fnc+"() parameters: "+l.verb(args), args...)
+	l.Info("Start "+cls+"."+fnc+"() parameters: ", args...)
 }
 
 // End func log
 func (l *logger) End(cls, fnc string, args ...interface{}) {
-	l.Info("End "+cls+"."+fnc+"() returns: "+l.verb(args), args...)
+	l.Info("End "+cls+"."+fnc+"() returns: ", args...)
 }
 
 // Info log

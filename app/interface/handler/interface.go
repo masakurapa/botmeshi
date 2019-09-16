@@ -7,10 +7,10 @@ import (
 
 // Handler base handler interface
 type Handler interface {
-	Handler(req http.Request) (http.Response, error)
+	Handler(http.Request) (http.Response, error)
 }
 
 // SearchHandler base handler interface
 type SearchHandler interface {
-	Handler(req search.Request) (string, error)
+	Handler(search.Request) (string, error)
 }

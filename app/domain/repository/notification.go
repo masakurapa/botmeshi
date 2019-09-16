@@ -4,6 +4,6 @@ import "github.com/masakurapa/botmeshi/app/domain/model/notification"
 
 // Notification interface
 type Notification interface {
-	PostMessage(option notification.Option) error
-	PostRichMessage(option notification.Option) error
+	PostMessage(notification.Option) error
+	PostRichMessage(notification.Option) error
 }
