@@ -25,6 +25,7 @@ func NewNotificationClient(logger log.Logger) repository.Notification {
 
 func (n *notificationClient) PostMessage(opt notification.Option) error {
 	n.log.Start("NotificationClient", "PostMessage", opt)
+	n.log.Info("Slack PostMessage parameters", opt)
 	err := n.post(opt.Target, slack.MsgOptionText(opt.Message, false))
 	n.log.End("NotificationClient", "PostMessage")
 	return err
@@ -32,6 +33,7 @@ func (n *notificationClient) PostMessage(opt notification.Option) error {
 
 func (n *notificationClient) PostRichMessage(opt notification.Option) error {
 	n.log.Start("NotificationClient", "PostRichMessage", opt)
+	n.log.Info("Slack PostRichMessage parameters", opt)
 
 	var actions []slack.AttachmentAction
 	for _, o := range opt.RichMessageOptions {
@@ -56,12 +58,15 @@ func (n *notificationClient) PostRichMessage(opt notification.Option) error {
 		actions = append(actions, action)
 	}
 
-	err := n.post(opt.Target, slack.MsgOptionAttachments(slack.Attachment{
+	attachment := slack.Attachment{
 		Text:       opt.Message,
 		CallbackID: opt.MessageID,
 		Color:      opt.Color,
 		Actions:    actions,
-	}))
+	}
+
+	n.log.Info("Slack PostRichMessage attachment options", attachment)
+	err := n.post(opt.Target, slack.MsgOptionAttachments(attachment))
 
 	n.log.End("NotificationClient", "PostRichMessage")
 	return err
