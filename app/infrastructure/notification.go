@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"fmt"
+
 	"github.com/masakurapa/botmeshi/app/domain/model/notification"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/masakurapa/botmeshi/app/log"
@@ -72,14 +74,12 @@ func (n *notificationClient) PostRichMessage(opt notification.Option) error {
 
 func (n *notificationClient) post(target string, opt slack.MsgOption) error {
 	n.log.Info("Slack PostMessage parameters", opt)
-	/*
-		_, _, err := n.client.PostMessage(target, opt)
+	_, _, err := n.client.PostMessage(target, opt)
 
-		if err != nil {
-			n.log.Error("Slack PostMessage error", err)
-			return fmt.Errorf("notification error")
-		}
-	*/
+	if err != nil {
+		n.log.Error("Slack PostMessage error", err)
+		return fmt.Errorf("notification error")
+	}
 
 	return nil
 }
