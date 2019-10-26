@@ -8,6 +8,7 @@ type Query struct {
 
 type SearchShopsQuery struct {
 	Query    string
+	ShopName string
 	Radius   uint
 	Location *Location
 }

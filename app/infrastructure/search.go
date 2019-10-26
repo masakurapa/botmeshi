@@ -3,27 +3,39 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/masakurapa/botmeshi/app/domain/model/search"
 	"github.com/masakurapa/botmeshi/app/domain/repository"
 	"github.com/masakurapa/botmeshi/app/log"
 	"github.com/masakurapa/botmeshi/app/util"
+	"google.golang.org/api/customsearch/v1"
+	"google.golang.org/api/googleapi/transport"
 	"googlemaps.github.io/maps"
 )
 
 type searchClient struct {
-	client *maps.Client
-	log    log.Logger
+	maps *maps.Client
+	cs   *customsearch.Service
+	log  log.Logger
 }
 
 // NewSearchClient returns MapSearch instance
 func NewSearchClient(logger log.Logger) (repository.Search, error) {
-	c, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
+	mc, err := maps.NewClient(maps.WithAPIKey(util.PlaceAPIKey()))
 	if err != nil {
-		logger.Error("GoogleMaps Client initialize error", err)
-		return nil, fmt.Errorf("search client initialize error")
+		logger.Error("Google Maps Client initialize error", err)
+		return nil, fmt.Errorf("map search client initialize error")
 	}
-	return &searchClient{client: c, log: logger}, nil
+
+	client := &http.Client{Transport: &transport.APIKey{Key: util.CustomSearchAPIKey()}}
+	cs, err := customsearch.New(client)
+	if err != nil {
+		logger.Error("Google Custom Search Client initialize error", err)
+		return nil, fmt.Errorf("custom search client initialize error")
+	}
+
+	return &searchClient{maps: mc, cs: cs, log: logger}, nil
 }
 
 // Station 駅検索
@@ -37,7 +49,7 @@ func (c *searchClient) Station(q *search.Query) *search.Station {
 	}
 
 	c.log.Info("GoogleMaps FindPlaceFromText parameters", r)
-	resp, err := c.client.FindPlaceFromText(context.Background(), r)
+	resp, err := c.maps.FindPlaceFromText(context.Background(), r)
 	if err != nil {
 		c.log.Error("FindPlaceFromText error", err)
 		return nil
@@ -62,9 +74,26 @@ func (c *searchClient) Station(q *search.Query) *search.Station {
 
 func (c *searchClient) Shop(q *search.SearchShopsQuery) *search.Shop {
 	c.log.Info("Start SearchClient.Shop()", q)
-	panic("実装されてなんだが？")
+
+	query := q.Query + " " + q.ShopName
+	cx := util.SearchEngineID()
+	site, err := c.cs.Cse.Siterestrict.List(query).Cx(cx).Do()
+	if err != nil {
+		c.log.Error("Shop search error", err)
+		return nil
+	}
+
+	if len(site.Items) == 0 {
+		c.log.Info("Shop not found")
+		return nil
+	}
+
+	shop := &search.Shop{
+		URL: site.Items[0].FormattedUrl,
+	}
+
 	c.log.End("SearchClient", "Shop")
-	return &search.Shop{}
+	return shop
 }
 
 // Shops 検索ワードから店検索
@@ -87,7 +116,7 @@ func (c *searchClient) Shops(q *search.SearchShopsQuery) []search.Shop {
 	}
 
 	c.log.Info("GoogleMaps TextSearch parameters", r)
-	resp, err := c.client.TextSearch(context.Background(), r)
+	resp, err := c.maps.TextSearch(context.Background(), r)
 	if err != nil {
 		c.log.Error("TextSearch error", err)
 		return nil
