@@ -1,5 +1,7 @@
 package log
 
+import "fmt"
+
 // Logger struct
 type Logger interface {
 	Start(string, string, ...interface{})
@@ -37,12 +39,12 @@ func (l *logger) Error(msg string, args ...interface{}) {
 }
 
 func (l *logger) log(level, msg string, args ...interface{}) {
-	// format := "[" + level + "]" + msg + ". "
+	format := "[" + level + "]" + msg + ". "
 
 	if len(args) == 0 {
-		// fmt.Println(format)
+		fmt.Println(format)
 	} else {
-		// fmt.Printf(format+l.verb(args)+"\n", args...)
+		fmt.Printf(format+l.verb(args)+"\n", args...)
 	}
 }
 
